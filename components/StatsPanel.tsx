@@ -165,7 +165,7 @@ export function StatsPanel({ onOpenMessage }: Props) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.1 }}
-          className='flex max-h-[160px] flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0d1117]/95 shadow-xl backdrop-blur-md'
+          className='flex max-h-[300px] flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0d1117]/95 shadow-xl backdrop-blur-md'
         >
           <div className='flex items-center justify-between border-b border-white/10 px-4 py-2.5'>
             <div className='flex items-center gap-2'>
@@ -194,9 +194,9 @@ export function StatsPanel({ onOpenMessage }: Props) {
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                className='flex-1 overflow-y-auto overflow-x-hidden'
+                className='overflow-hidden'
               >
-                <div className='space-y-1 p-2'>
+                <div className='max-h-[260px] space-y-1 overflow-y-auto p-2'>
                   {recentActivity && recentActivity.length > 0 ? (
                     recentActivity.map((a) => (
                       <button
