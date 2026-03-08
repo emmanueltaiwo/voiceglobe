@@ -58,12 +58,12 @@ export function StatsPanel({ onOpenMessage }: Props) {
 
   return (
     <>
-      <div className='absolute left-4 top-4 z-10 hidden w-[280px] flex-col gap-3 md:flex'>
+      <div className='absolute left-4 top-4 z-10 hidden max-h-[calc(100dvh-2rem-3rem)] w-[280px] flex-col gap-3 overflow-y-auto md:flex'>
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className='overflow-hidden rounded-xl border border-white/10 bg-[#0d1117]/95 shadow-xl shadow-black/40 backdrop-blur-md'
+          className='shrink-0 overflow-hidden rounded-xl border border-white/10 bg-[#0d1117]/95 shadow-xl shadow-black/40 backdrop-blur-md'
         >
           <div className='flex items-center justify-between border-b border-white/10 px-4 py-2.5'>
             <div className='flex items-center gap-2'>
@@ -107,7 +107,7 @@ export function StatsPanel({ onOpenMessage }: Props) {
                 </div>
 
                 {topCountries.length > 0 && (
-                  <div className='border-b border-white/10 px-4 py-3'>
+                  <div className='max-h-[min(180px,25vh)] overflow-y-auto border-b border-white/10 px-4 py-3'>
                     <div className='mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500'>
                       Countries
                     </div>
@@ -165,7 +165,7 @@ export function StatsPanel({ onOpenMessage }: Props) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.1 }}
-          className='flex max-h-[300px] flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0d1117]/95 shadow-xl backdrop-blur-md'
+          className='flex min-h-[140px] max-h-[min(320px,45vh)] shrink flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0d1117]/95 shadow-xl backdrop-blur-md'
         >
           <div className='flex items-center justify-between border-b border-white/10 px-4 py-2.5'>
             <div className='flex items-center gap-2'>
@@ -196,42 +196,44 @@ export function StatsPanel({ onOpenMessage }: Props) {
                 transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                 className='overflow-hidden'
               >
-                <div className='max-h-[260px] space-y-1 overflow-y-auto p-2'>
-                  {recentActivity && recentActivity.length > 0 ? (
-                    recentActivity.map((a) => (
-                      <button
-                        key={a._id}
-                        type='button'
-                        onClick={() =>
-                          onOpenMessage?.({
-                            _id: a._id,
-                            lat: a.lat,
-                            lng: a.lng,
-                            audioUrl: a.audioUrl,
-                            duration: a.duration,
-                            createdAt: a.createdAt,
-                            expiresAt: a.expiresAt,
-                            replyTo: a.replyTo,
-                            countryCode: a.countryCode,
-                            isFirstInCountry: a.isFirstInCountry,
-                          })
-                        }
-                        className='flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs text-slate-400 transition hover:bg-emerald-500/10 hover:text-slate-200'
-                      >
-                        <span>{a.countryFlag ?? '🌍'}</span>
-                        <span className='flex-1 truncate'>
-                          New recording in {a.countryName ?? 'Unknown'}
-                        </span>
-                        <span className='shrink-0 font-mono text-[10px] text-slate-500'>
-                          {formatTimeAgo(a.createdAt)}
-                        </span>
-                      </button>
-                    ))
-                  ) : (
-                    <div className='py-4 text-center text-xs text-slate-500'>
-                      No recent activity
-                    </div>
-                  )}
+                <div className='max-h-[clamp(120px,30vh,200px)] overflow-y-auto'>
+                  <div className='space-y-1 p-2 pb-2'>
+                    {recentActivity && recentActivity.length > 0 ? (
+                      recentActivity.map((a) => (
+                        <button
+                          key={a._id}
+                          type='button'
+                          onClick={() =>
+                            onOpenMessage?.({
+                              _id: a._id,
+                              lat: a.lat,
+                              lng: a.lng,
+                              audioUrl: a.audioUrl,
+                              duration: a.duration,
+                              createdAt: a.createdAt,
+                              expiresAt: a.expiresAt,
+                              replyTo: a.replyTo,
+                              countryCode: a.countryCode,
+                              isFirstInCountry: a.isFirstInCountry,
+                            })
+                          }
+                          className='flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs text-slate-400 transition hover:bg-emerald-500/10 hover:text-slate-200'
+                        >
+                          <span>{a.countryFlag ?? '🌍'}</span>
+                          <span className='flex-1 truncate'>
+                            New recording in {a.countryName ?? 'Unknown'}
+                          </span>
+                          <span className='shrink-0 font-mono text-[10px] text-slate-500'>
+                            {formatTimeAgo(a.createdAt)}
+                          </span>
+                        </button>
+                      ))
+                    ) : (
+                      <div className='py-4 text-center text-xs text-slate-500'>
+                        No recent activity
+                      </div>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             )}
