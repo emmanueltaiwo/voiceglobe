@@ -9,6 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "convex": "^1.32.0",
+    "country-coder": "^2.1.0",
+    "country-emoji": "^1.5.6",
+    "lucide-react": "^0.577.0",
+    "mapbox-gl": "^3.19.1",
+    "motion": "^12.35.1",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"

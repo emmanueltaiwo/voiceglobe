@@ -1,26 +1,70 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --void: #050810;
+  --void-deep: #020408;
+  --panel: #0a0f1a;
+  --border: #1e2a3a;
+  --muted: #5c6b7a;
+  --signal: #a3e635;
+  --tx-active: #ef4444;
+  --text: #e8ecf0;
+  --text-dim: #8b99a8;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-void: var(--void);
+  --color-void-deep: var(--void-deep);
+  --color-panel: var(--panel);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-signal: var(--signal);
+  --color-tx-active: var(--tx-active);
+  --color-text: var(--text);
+  --color-text-dim: var(--text-dim);
+  --font-sans: var(--font-display), system-ui, sans-serif;
+  --font-mono: var(--font-mono), monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--void);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--void);
+  color: var(--text);
+  font-family: var(--font-mono), monospace;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Starfield background - subtle white speckles (space ambiance) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='s'%3E%3CfeGaussianBlur stdDeviation='0.5'/%3E%3C/filter%3E%3Cg fill='%23fff' fill-opacity='0.35' filter='url(%23s)'%3E%3Ccircle cx='20' cy='30' r='0.5'/%3E%3Ccircle cx='80' cy='120' r='0.5'/%3E%3Ccircle cx='150' cy='45' r='0.5'/%3E%3Ccircle cx='220' cy='180' r='0.5'/%3E%3Ccircle cx='290' cy='90' r='0.5'/%3E%3Ccircle cx='350' cy='250' r='0.5'/%3E%3Ccircle cx='45' cy='200' r='0.5'/%3E%3Ccircle cx='120' cy='280' r='0.5'/%3E%3Ccircle cx='200' cy='350' r='0.5'/%3E%3Ccircle cx='280' cy='150' r='0.5'/%3E%3Ccircle cx='15' cy='340' r='0.5'/%3E%3Ccircle cx='180' cy='80' r='0.5'/%3E%3Ccircle cx='340' cy='20' r='0.5'/%3E%3Ccircle cx='60' cy='380' r='0.5'/%3E%3Ccircle cx='380' cy='320' r='0.5'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 400px 400px;
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Subtle vignette - darkens edges */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 85% 85% at 50% 50%,
+    transparent 50%,
+    rgba(2, 4, 12, 0.3) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
 }
