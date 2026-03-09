@@ -164,7 +164,7 @@ export function StatsPanel({ onOpenMessage }: Props) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.1 }}
-          className='flex min-h-[140px] max-h-[min(320px,45vh)] shrink flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0d1117]/95 shadow-xl backdrop-blur-md'
+          className={`flex shrink-0 flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0d1117]/95 shadow-xl backdrop-blur-md ${activityExpanded ? 'max-h-[min(320px,45vh)]' : ''}`}
         >
           <div className='flex items-center justify-between border-b border-white/10 px-4 py-2.5'>
             <div className='flex items-center gap-2'>
