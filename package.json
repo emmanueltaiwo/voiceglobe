@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.6.1",
     "convex": "^1.32.0",
     "country-coder": "^2.1.0",
     "country-emoji": "^1.5.6",

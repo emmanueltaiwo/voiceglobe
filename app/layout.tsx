@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { ConvexClientProvider } from './ConvexClientProvider';
+import { Analytics } from '@vercel/analytics/next';
 
 const plexMono = IBM_Plex_Mono({
   subsets: ['latin'],
@@ -52,7 +53,10 @@ export default function RootLayout({
   return (
     <html lang='en' className={`${plexMono.variable} ${spaceGrotesk.variable}`}>
       <body className='antialiased font-mono'>
-        <ConvexClientProvider>{children}</ConvexClientProvider>
+        <ConvexClientProvider>
+          {children}
+          <Analytics />
+        </ConvexClientProvider>
       </body>
     </html>
   );
