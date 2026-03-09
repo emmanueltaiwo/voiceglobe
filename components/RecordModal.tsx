@@ -144,7 +144,7 @@ export function RecordModal({
                   >
                     <Square className='h-8 w-8 fill-void text-void sm:h-6 sm:w-6' />
                   </motion.div>
-                  {/* Radar sweep rings */}
+
                   {[1, 2, 3].map((i) => (
                     <motion.div
                       key={i}

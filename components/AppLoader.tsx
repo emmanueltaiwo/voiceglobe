@@ -20,7 +20,6 @@ export function AppLoader({ children }: { children: React.ReactNode }) {
             transition={{ duration: 0.4 }}
             className='fixed inset-0 z-100 flex items-center justify-center bg-void'
           >
-            {/* Boot sequence bars */}
             <div className='absolute left-4 top-4 flex flex-col gap-1'>
               {['INIT', 'MAP', 'SIGNAL'].map((line, i) => (
                 <motion.div

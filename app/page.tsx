@@ -115,7 +115,7 @@ export default function Home() {
   return (
     <main className='relative z-10 flex h-screen w-screen flex-col overflow-hidden bg-void'>
       <AppLoader>
-        {/* Mobile: header with stats + search stacked; when stats expands, search stays below */}
+        {/* Mobile */}
         <div className='relative z-10 flex shrink-0 flex-col md:hidden'>
           <StatsPanel onOpenMessage={setMessageToOpen} />
           <div className='shrink-0 bg-void/80 px-4 py-3 backdrop-blur-sm'>
@@ -125,7 +125,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Desktop only: stats strip + search */}
+        {/* Desktop only */}
         <div className='hidden md:block'>
           <StatsPanel onOpenMessage={setMessageToOpen} />
         </div>

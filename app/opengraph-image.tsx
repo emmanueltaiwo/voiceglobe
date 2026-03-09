@@ -18,7 +18,6 @@ export default async function Image() {
         fontFamily: 'system-ui, sans-serif',
       }}
     >
-      {/* Subtle vignette */}
       <div
         style={{
           position: 'absolute',
@@ -29,7 +28,7 @@ export default async function Image() {
           pointerEvents: 'none',
         }}
       />
-      {/* Main content panel - dark glass like app */}
+
       <div
         style={{
           flex: 1,
@@ -43,7 +42,6 @@ export default async function Image() {
           padding: 48,
         }}
       >
-        {/* VoiceGlobe · Live header */}
         <div
           style={{
             display: 'flex',
@@ -108,7 +106,7 @@ export default async function Image() {
           </div>
           <div>Tune in to what the world is saying.</div>
         </div>
-        {/* Accent bar */}
+
         <div
           style={{
             width: 120,

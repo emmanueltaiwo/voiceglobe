@@ -73,7 +73,6 @@ export function MarkerPopup({
       className='absolute z-50 w-full max-w-sm rounded-xl border border-white/20 bg-[#0d1117]/98 shadow-2xl shadow-black/40 backdrop-blur-md md:w-80'
       style={style}
     >
-      {/* Signal received indicator */}
       <motion.div
         initial={{ width: 0 }}
         animate={{ width: '100%' }}

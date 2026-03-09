@@ -279,7 +279,7 @@ export function Globe({
   return (
     <div className='relative h-full w-full min-h-[300px] md:min-h-[400px]'>
       <div ref={containerRef} className='absolute inset-0 h-full w-full' />
-      {/* Map controls - higher on mobile to avoid overlap with record button */}
+
       <div className='absolute bottom-24 left-3 hidden md:flex flex-col gap-2 md:bottom-3 md:left-3'>
         <motion.button
           initial={{ opacity: 0, x: -10 }}

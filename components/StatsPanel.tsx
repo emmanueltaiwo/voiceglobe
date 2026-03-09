@@ -94,7 +94,6 @@ export function StatsPanel({ onOpenMessage }: Props) {
                 transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                 className='overflow-hidden'
               >
-                {/* Key metrics */}
                 <div className='border-b border-white/10 px-4 py-3'>
                   <div className='text-lg'>
                     <span className='font-mono text-2xl font-bold tabular-nums text-emerald-400'>
