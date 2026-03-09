@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from 'react';
 
 const MAX_DURATION_MS = 10000;
 
@@ -29,7 +29,7 @@ export function useRecording() {
       recorder.onstop = () => {
         stream.getTracks().forEach((t) => t.stop());
         if (chunksRef.current.length) {
-          setAudioBlob(new Blob(chunksRef.current, { type: "audio/webm" }));
+          setAudioBlob(new Blob(chunksRef.current, { type: 'audio/webm' }));
         }
       };
 
@@ -44,7 +44,9 @@ export function useRecording() {
         }
       }, 100);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to access microphone");
+      setError(
+        err instanceof Error ? err.message : 'Failed to access microphone',
+      );
     }
   }, []);
 
@@ -54,7 +56,7 @@ export function useRecording() {
       timerRef.current = null;
     }
     const recorder = mediaRecorderRef.current;
-    if (recorder && recorder.state !== "inactive") {
+    if (recorder && recorder.state !== 'inactive') {
       recorder.stop();
       setIsRecording(false);
     }
