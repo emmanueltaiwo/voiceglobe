@@ -11,7 +11,7 @@ import { getCountryFromCoords } from '@/lib/geo';
 
 type Props = {
   message: Message;
-  position?: { x: number; y: number } | null;
+  position?: { x: number; y: number; placement?: 'left' | 'right' } | null;
   onClose: () => void;
   formatDuration: (s: number) => string;
   formatTimestamp: (ms: number) => string;
@@ -51,15 +51,24 @@ export function MarkerPopup({
   const handleEnded = () => setPlaying(false);
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
+  const POPUP_WIDTH = 320;
+
   // Mobile: bottom sheet. Desktop: positioned near marker or top-right
   const style =
     isDesktop && position
-      ? {
-          left: position.x + 12,
-          top: position.y,
-          right: 'auto',
-          bottom: 'auto',
-        }
+      ? position.placement === 'left'
+        ? {
+            left: Math.max(8, position.x - POPUP_WIDTH - 12),
+            top: position.y,
+            right: 'auto',
+            bottom: 'auto',
+          }
+        : {
+            left: position.x + 12,
+            top: position.y,
+            right: 'auto',
+            bottom: 'auto',
+          }
       : isDesktop
         ? { right: 16, top: 96, left: 'auto', bottom: 'auto' }
         : { left: 0, right: 0, bottom: 0, top: 'auto' };

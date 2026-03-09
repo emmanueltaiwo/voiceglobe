@@ -47,6 +47,7 @@ export function Globe({
   const [popupPosition, setPopupPosition] = useState<{
     x: number;
     y: number;
+    placement: 'left' | 'right';
   } | null>(null);
   const [isClickMode, setIsClickMode] = useState(false);
 
@@ -199,7 +200,20 @@ export function Globe({
           if (msg) {
             setPopupMessage(msg);
             const pt = e.point;
-            setPopupPosition({ x: pt.x, y: pt.y });
+            const containerWidth = map.getContainer().clientWidth;
+            const popupWidth = 320;
+            const offset = 12;
+            const spaceOnRight = containerWidth - (pt.x + offset);
+            const spaceOnLeft = pt.x - offset;
+            const placement: 'left' | 'right' =
+              spaceOnRight >= popupWidth
+                ? 'right'
+                : spaceOnLeft >= popupWidth
+                  ? 'left'
+                  : spaceOnRight >= spaceOnLeft
+                    ? 'right'
+                    : 'left';
+            setPopupPosition({ x: pt.x, y: pt.y, placement });
           }
         });
 
