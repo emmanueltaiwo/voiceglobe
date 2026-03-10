@@ -113,7 +113,7 @@ export default function Home() {
   const hasPendingUpload = pendingLocation !== null;
 
   return (
-    <main className='relative z-10 flex h-screen w-screen flex-col overflow-hidden bg-void'>
+    <main className='relative z-10 flex h-dvh w-screen flex-col overflow-hidden bg-void'>
       <AppLoader>
         {/* Mobile */}
         <div className='relative z-10 flex shrink-0 flex-col md:hidden'>

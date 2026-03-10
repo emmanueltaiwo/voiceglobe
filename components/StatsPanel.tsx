@@ -106,7 +106,7 @@ export function StatsPanel({ onOpenMessage }: Props) {
                 </div>
 
                 {topCountries.length > 0 && (
-                  <div className='max-h-[min(180px,25vh)] overflow-y-auto border-b border-white/10 px-4 py-3'>
+                  <div className='max-h-[min(180px,25dvh)] overflow-y-auto border-b border-white/10 px-4 py-3'>
                     <div className='mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500'>
                       Countries
                     </div>
@@ -164,7 +164,7 @@ export function StatsPanel({ onOpenMessage }: Props) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.1 }}
-          className={`flex shrink-0 flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0d1117]/95 shadow-xl backdrop-blur-md ${activityExpanded ? 'max-h-[min(320px,45vh)]' : ''}`}
+          className={`flex shrink-0 flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0d1117]/95 shadow-xl backdrop-blur-md ${activityExpanded ? 'max-h-[min(320px,45dvh)]' : ''}`}
         >
           <div className='flex items-center justify-between border-b border-white/10 px-4 py-2.5'>
             <div className='flex items-center gap-2'>
@@ -195,7 +195,7 @@ export function StatsPanel({ onOpenMessage }: Props) {
                 transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                 className='overflow-hidden'
               >
-                <div className='max-h-[clamp(120px,30vh,200px)] overflow-y-auto'>
+                <div className='max-h-[clamp(120px,30dvh,200px)] overflow-y-auto'>
                   <div className='space-y-1 p-2 pb-2'>
                     {recentActivity && recentActivity.length > 0 ? (
                       recentActivity.map((a) => (
