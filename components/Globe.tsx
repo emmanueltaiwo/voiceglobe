@@ -41,6 +41,10 @@ export function Globe({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<import('mapbox-gl').Map | null>(null);
+  const userLocationCleanupRef = useRef<{
+    timeout: ReturnType<typeof setTimeout>;
+    interval: ReturnType<typeof setInterval>;
+  } | null>(null);
   const messagesRef = useRef<typeof messages>(undefined);
   const [mapReady, setMapReady] = useState(false);
   const [bounds, setBounds] = useState<Bounds | null>(null);
@@ -141,7 +145,6 @@ export function Globe({
       });
 
       map.on('load', () => {
-        // Space-like atmosphere: dark blue background with visible stars
         map.setFog({
           color: 'rgb(5, 10, 20)',
           'high-color': 'rgb(15, 25, 45)',
@@ -321,6 +324,93 @@ export function Globe({
           duration: 1500,
         });
         setIsLocating(false);
+
+        const sourceId = 'user-location-source';
+        const layerIds = [
+          'user-location-pulse-outer',
+          'user-location-pulse-inner',
+        ];
+
+        const removeUserLocation = () => {
+          if (userLocationCleanupRef.current) {
+            clearTimeout(userLocationCleanupRef.current.timeout);
+            clearInterval(userLocationCleanupRef.current.interval);
+            userLocationCleanupRef.current = null;
+          }
+          layerIds.forEach((id) => {
+            if (map.getLayer(id)) map.removeLayer(id);
+          });
+          if (map.getSource(sourceId)) map.removeSource(sourceId);
+        };
+
+        removeUserLocation();
+
+        map.addSource(sourceId, {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [longitude, latitude] },
+            properties: {},
+          },
+        });
+
+        map.addLayer({
+          id: 'user-location-pulse-outer',
+          type: 'circle',
+          source: sourceId,
+          paint: {
+            'circle-radius': 12,
+            'circle-color': '#a3e635',
+            'circle-opacity': 0.4,
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#a3e635',
+            'circle-stroke-opacity': 0.7,
+          },
+        });
+
+        map.addLayer({
+          id: 'user-location-pulse-inner',
+          type: 'circle',
+          source: sourceId,
+          paint: {
+            'circle-radius': 5,
+            'circle-color': '#a3e635',
+            'circle-opacity': 1,
+          },
+        });
+
+        const start = Date.now();
+        const duration = 4000;
+        const cycleMs = 1300;
+        const pulseInterval = setInterval(() => {
+          const elapsed = Date.now() - start;
+          if (elapsed >= duration) {
+            clearInterval(pulseInterval);
+            return;
+          }
+          const t = (elapsed % cycleMs) / cycleMs;
+          const scale = 1 + 0.8 * Math.sin(t * Math.PI);
+          const radius = Math.round(12 * scale);
+          const opacity = 0.4 - 0.25 * Math.sin(t * Math.PI);
+          if (map.getLayer('user-location-pulse-outer')) {
+            map.setPaintProperty(
+              'user-location-pulse-outer',
+              'circle-radius',
+              radius,
+            );
+            map.setPaintProperty(
+              'user-location-pulse-outer',
+              'circle-opacity',
+              opacity,
+            );
+          }
+        }, 50);
+
+        const timeout = setTimeout(() => {
+          clearInterval(pulseInterval);
+          removeUserLocation();
+        }, 4000);
+        userLocationCleanupRef.current = { timeout, interval: pulseInterval };
       },
       (err) => {
         if (err.code === 1) {
