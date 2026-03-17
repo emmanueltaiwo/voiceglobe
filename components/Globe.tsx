@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import type { Id } from '@/convex/_generated/dataModel';
+import { Locate, Loader2, Shuffle, X } from 'lucide-react';
 import { formatDuration, formatTimestamp } from '@/lib/utils';
 import type { Message } from '@/lib/types';
 import { createMicIconDataUrl } from '@/lib/mic-icon';
@@ -50,6 +51,15 @@ export function Globe({
     placement: 'left' | 'right';
   } | null>(null);
   const [isClickMode, setIsClickMode] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locateError, setLocateError] = useState<string | null>(null);
+  const [showLocationDeniedModal, setShowLocationDeniedModal] = useState(false);
+
+  useEffect(() => {
+    if (!locateError) return;
+    const t = setTimeout(() => setLocateError(null), 4000);
+    return () => clearTimeout(t);
+  }, [locateError]);
 
   useEffect(() => {
     if (!messageToOpen || !mapReady) return;
@@ -286,6 +296,46 @@ export function Globe({
     });
   }, []);
 
+  const flyToCurrentLocation = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const map = mapInstanceRef.current;
+    setLocateError(null);
+
+    if (!map) return;
+    if (!navigator.geolocation) {
+      setLocateError('Location not supported');
+      return;
+    }
+    if (!window.isSecureContext) {
+      setLocateError('Use HTTPS for location');
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { longitude, latitude } = pos.coords;
+        map.flyTo({
+          center: [longitude, latitude],
+          zoom: 14,
+          duration: 1500,
+        });
+        setIsLocating(false);
+      },
+      (err) => {
+        if (err.code === 1) {
+          setShowLocationDeniedModal(true);
+        } else {
+          const msg =
+            err.code === 2 ? 'Location unavailable' : 'Location timed out';
+          setLocateError(msg);
+        }
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+    );
+  }, []);
+
   const startDropPin = useCallback(() => {
     setIsClickMode(true);
   }, []);
@@ -294,7 +344,30 @@ export function Globe({
     <div className='relative h-full w-full min-h-[300px] md:min-h-[400px]'>
       <div ref={containerRef} className='absolute inset-0 h-full w-full' />
 
-      <div className='absolute bottom-24 left-3 hidden md:flex flex-col gap-2 md:bottom-3 md:left-3'>
+      <div className='absolute bottom-24 left-3 z-20 flex flex-col gap-2 md:bottom-3 md:left-3'>
+        <div className='flex flex-col gap-1'>
+          <motion.button
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            whileHover={{ scale: 1.03, borderColor: 'rgba(163, 230, 53, 0.8)' }}
+            whileTap={{ scale: 0.97 }}
+            onClick={flyToCurrentLocation}
+            disabled={isLocating || !mapReady}
+            className='flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-[#0d1117]/95 px-3 py-2.5 text-xs font-mono uppercase leading-tight tracking-wider text-slate-200 shadow-xl shadow-black/40 backdrop-blur-md transition disabled:opacity-60 md:py-2 md:text-[10px]'
+            title='Go to my location'
+          >
+            {isLocating ? (
+              <Loader2 className='h-3.5 w-3.5 animate-spin' strokeWidth={2} />
+            ) : (
+              <Locate className='h-3.5 w-3.5 shrink-0' strokeWidth={2} />
+            )}
+            <span className='hidden md:inline'>My location</span>
+          </motion.button>
+          {locateError && (
+            <p className='text-[10px] text-red-400'>{locateError}</p>
+          )}
+        </div>
         <motion.button
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
@@ -302,10 +375,11 @@ export function Globe({
           whileHover={{ scale: 1.03, borderColor: 'rgba(163, 230, 53, 0.8)' }}
           whileTap={{ scale: 0.97 }}
           onClick={flyToRandom}
-          className='rounded-lg border border-white/10 bg-[#0d1117]/95 px-4 py-2.5 text-left text-xs font-mono uppercase leading-tight tracking-wider text-slate-200 shadow-xl shadow-black/40 backdrop-blur-md transition md:px-3 md:py-2 md:text-[10px]'
+          className='flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-[#0d1117]/95 px-3 py-2.5 text-left text-xs font-mono uppercase leading-tight tracking-wider text-slate-200 shadow-xl shadow-black/40 backdrop-blur-md transition md:py-2 md:text-[10px]'
           title='Fly to a random location on the map'
         >
-          Navigate to random location
+          <Shuffle className='h-3.5 w-3.5 shrink-0' strokeWidth={2} />
+          <span className='hidden md:inline'>Navigate to random</span>
         </motion.button>
         {onSelectLocation && (
           <>
@@ -351,6 +425,79 @@ export function Globe({
           </>
         )}
       </div>
+      <AnimatePresence>
+        {showLocationDeniedModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className='fixed inset-0 z-60 flex items-center justify-center bg-void/90 p-4'
+            onClick={() => setShowLocationDeniedModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className='w-full max-w-md rounded-2xl border border-white/20 bg-[#0d1117] p-6 shadow-2xl'
+            >
+              <div className='flex items-start justify-between gap-4'>
+                <div>
+                  <h3 className='text-lg font-semibold text-slate-200'>
+                    Location access denied
+                  </h3>
+                  <p className='mt-2 text-sm text-slate-400'>
+                    To use &quot;My location&quot;, you need to allow location
+                    access for this site.
+                  </p>
+                  <div className='mt-4 space-y-2 rounded-lg border border-white/10 bg-white/5 p-4'>
+                    <p className='text-xs font-semibold uppercase tracking-wider text-slate-500'>
+                      How to enable:
+                    </p>
+                    <ol className='list-inside list-decimal space-y-1.5 text-sm text-slate-300'>
+                      <li>
+                        Click the lock or info icon in your browser&apos;s
+                        address bar
+                      </li>
+                      <li>
+                        Find &quot;Location&quot; and set it to
+                        &quot;Allow&quot;
+                      </li>
+                      <li>Refresh the page and try again</li>
+                    </ol>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowLocationDeniedModal(false)}
+                  className='shrink-0 rounded-lg p-2 text-slate-400 transition hover:bg-white/10 hover:text-white'
+                  aria-label='Close'
+                >
+                  <X className='h-5 w-5' strokeWidth={2} />
+                </button>
+              </div>
+              <div className='mt-6 flex gap-2'>
+                <button
+                  onClick={() => setShowLocationDeniedModal(false)}
+                  className='flex-1 rounded-lg border border-white/20 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/5'
+                >
+                  Got it
+                </button>
+                <button
+                  onClick={() => {
+                    setShowLocationDeniedModal(false);
+                    flyToCurrentLocation();
+                  }}
+                  className='flex-1 rounded-lg border border-emerald-500/50 bg-emerald-500/15 py-3 text-sm font-medium text-emerald-400 transition hover:bg-emerald-500/25'
+                >
+                  Try again
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <AnimatePresence>
         {popupMessage && (
           <MarkerPopup
