@@ -39,8 +39,15 @@ export function useRecording() {
       chunksRef.current = [];
       const startTime = Date.now();
 
+      let chunkCount = 0;
       recorder.ondataavailable = (e) => {
-        if (e.data.size) chunksRef.current.push(e.data);
+        if (e.data.size) {
+          chunksRef.current.push(e.data);
+          chunkCount++;
+          if (chunkCount >= MAX_DURATION_MS / 1000) {
+            recorder.stop();
+          }
+        }
       };
 
       recorder.onstop = () => {
@@ -51,7 +58,7 @@ export function useRecording() {
         }
       };
 
-      recorder.start();
+      recorder.start(1000);
       setIsRecording(true);
 
       timerRef.current = setInterval(() => {

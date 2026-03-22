@@ -218,7 +218,7 @@ export function RecordModal({
                   />
                 </div>
                 <p className='text-center text-[10px] text-muted'>
-                  {formatDuration(duration)} · Ready to place
+                  {formatDuration(duration)} · {duration > maxDuration ? 'Over limit, record again' : 'Ready to place'}
                 </p>
               </div>
               <div className='flex gap-2'>
@@ -231,10 +231,11 @@ export function RecordModal({
                   Again
                 </motion.button>
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={onUse}
-                  className='flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-emerald-500 bg-emerald-500 py-3.5 text-[10px] font-mono uppercase tracking-wider text-white transition hover:bg-emerald-600 sm:py-3'
+                  whileHover={duration <= maxDuration ? { scale: 1.02 } : {}}
+                  whileTap={duration <= maxDuration ? { scale: 0.98 } : {}}
+                  onClick={duration <= maxDuration ? onUse : undefined}
+                  disabled={duration > maxDuration}
+                  className='flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-emerald-500 bg-emerald-500 py-3.5 text-[10px] font-mono uppercase tracking-wider text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 sm:py-3'
                 >
                   <MapPin className='h-3.5 w-3.5' strokeWidth={2} />
                   Place

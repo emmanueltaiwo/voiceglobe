@@ -60,6 +60,10 @@ export default function Home() {
   const handleSelectLocation = useCallback(
     async (lat: number, lng: number) => {
       if (!recording.audioBlob) return;
+      if (recording.duration > 10) {
+        console.error('Recording exceeds 10 second limit');
+        return;
+      }
 
       setIsPlacing(true);
       try {

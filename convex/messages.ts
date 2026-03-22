@@ -4,6 +4,7 @@ import { iso1A2Code } from 'country-coder';
 import { flag, name } from 'country-emoji';
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const MAX_RECORDING_SEC = 10;
 
 export const generateUploadUrl = mutation({
   args: {},
@@ -21,6 +22,9 @@ export const createMessage = mutation({
     replyTo: v.optional(v.id('messages')),
   },
   handler: async (ctx, args) => {
+    if (args.duration > MAX_RECORDING_SEC) {
+      throw new Error(`Recording exceeds maximum duration of ${MAX_RECORDING_SEC} seconds`);
+    }
     const audioUrl = await ctx.storage.getUrl(args.audioStorageId);
     if (!audioUrl) throw new Error('Invalid audio file');
 
