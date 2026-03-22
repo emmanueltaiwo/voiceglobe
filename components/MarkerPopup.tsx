@@ -30,6 +30,7 @@ export function MarkerPopup({
 }: Props) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
+  const [playError, setPlayError] = useState(false);
   const replies = useQuery(api.messages.getReplies, { messageId: message._id });
   const country = useMemo(
     () => getCountryFromCoords(message.lat, message.lng),
@@ -39,15 +40,17 @@ export function MarkerPopup({
   const togglePlay = () => {
     const audio = audioRef.current;
     if (!audio) return;
+    setPlayError(false);
     if (playing) {
       audio.pause();
       audio.currentTime = 0;
       setPlaying(false);
     } else {
       audio.volume = 1;
+      audio.load();
       const p = audio.play();
       if (p !== undefined) {
-        p.then(() => setPlaying(true)).catch(() => {});
+        p.then(() => setPlaying(true)).catch(() => setPlayError(true));
       } else {
         setPlaying(true);
       }
@@ -55,6 +58,7 @@ export function MarkerPopup({
   };
 
   const handleEnded = () => setPlaying(false);
+  const handleAudioError = () => setPlayError(true);
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   const POPUP_WIDTH = 320;
@@ -99,7 +103,7 @@ export function MarkerPopup({
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={togglePlay}
+            onPointerDown={togglePlay}
             className='flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border-2 border-emerald-500 bg-white/5 text-emerald-400 transition hover:bg-emerald-500 hover:text-white md:h-10 md:w-10'
           >
             {playing ? (
@@ -142,10 +146,16 @@ export function MarkerPopup({
           <X className='h-4 w-4 md:h-3.5 md:w-3.5' strokeWidth={2} />
         </motion.button>
       </div>
+      {playError && (
+        <p className='border-t border-white/10 px-4 py-2 text-[10px] text-amber-400'>
+          Unable to play this recording.
+        </p>
+      )}
       <audio
         ref={audioRef}
         src={message.audioUrl}
         onEnded={handleEnded}
+        onError={handleAudioError}
         preload='auto'
         playsInline
       />
@@ -209,19 +219,22 @@ function ReplyItem({
 }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
+  const [playError, setPlayError] = useState(false);
 
   const togglePlay = () => {
     const audio = audioRef.current;
     if (!audio) return;
+    setPlayError(false);
     if (playing) {
       audio.pause();
       audio.currentTime = 0;
       setPlaying(false);
     } else {
       audio.volume = 1;
+      audio.load();
       const p = audio.play();
       if (p !== undefined) {
-        p.then(() => setPlaying(true)).catch(() => {});
+        p.then(() => setPlaying(true)).catch(() => setPlayError(true));
       } else {
         setPlaying(true);
       }
@@ -233,7 +246,7 @@ function ReplyItem({
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        onClick={togglePlay}
+        onPointerDown={togglePlay}
         className='flex h-8 w-8 shrink-0 items-center justify-center rounded border border-white/20 text-emerald-400 transition hover:border-emerald-500 md:h-7 md:w-7'
       >
         {playing ? (
@@ -242,10 +255,14 @@ function ReplyItem({
           <Play className='ml-0.5 h-2.5 w-2.5 fill-current' />
         )}
       </motion.button>
+      {playError && (
+        <span className='text-[9px] text-amber-400'>Can&apos;t play</span>
+      )}
       <audio
         ref={audioRef}
         src={reply.audioUrl}
         onEnded={() => setPlaying(false)}
+        onError={() => setPlayError(true)}
         preload='auto'
         playsInline
       />
