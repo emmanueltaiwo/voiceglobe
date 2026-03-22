@@ -28,7 +28,7 @@ type Props = {
 
 export function StatsPanel({ onOpenMessage }: Props) {
   const stats = useQuery(api.messages.getStats, {});
-  const recentActivity = useQuery(api.messages.getRecentActivity, { limit: 6 });
+  const recentActivity = useQuery(api.messages.getRecentActivity, { limit: 100 });
   const [randomSeed, setRandomSeed] = useState(0);
   const [hasRequestedRandom, setHasRequestedRandom] = useState(false);
   const [expanded, setExpanded] = useState(true);

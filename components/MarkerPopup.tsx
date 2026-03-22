@@ -42,10 +42,16 @@ export function MarkerPopup({
     if (playing) {
       audio.pause();
       audio.currentTime = 0;
+      setPlaying(false);
     } else {
-      audio.play();
+      audio.volume = 1;
+      const p = audio.play();
+      if (p !== undefined) {
+        p.then(() => setPlaying(true)).catch(() => {});
+      } else {
+        setPlaying(true);
+      }
     }
-    setPlaying(!playing);
   };
 
   const handleEnded = () => setPlaying(false);
@@ -140,7 +146,8 @@ export function MarkerPopup({
         ref={audioRef}
         src={message.audioUrl}
         onEnded={handleEnded}
-        preload='metadata'
+        preload='auto'
+        playsInline
       />
       {(replies?.length ?? 0) > 0 && (
         <div className='border-t border-white/10 p-3'>
@@ -209,10 +216,16 @@ function ReplyItem({
     if (playing) {
       audio.pause();
       audio.currentTime = 0;
+      setPlaying(false);
     } else {
-      audio.play();
+      audio.volume = 1;
+      const p = audio.play();
+      if (p !== undefined) {
+        p.then(() => setPlaying(true)).catch(() => {});
+      } else {
+        setPlaying(true);
+      }
     }
-    setPlaying(!playing);
   };
 
   return (
@@ -233,7 +246,8 @@ function ReplyItem({
         ref={audioRef}
         src={reply.audioUrl}
         onEnded={() => setPlaying(false)}
-        preload='metadata'
+        preload='auto'
+        playsInline
       />
       <div className='min-w-0 flex-1'>
         <p className='font-mono text-sm tabular-nums text-text md:text-[10px]'>

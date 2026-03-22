@@ -192,7 +192,7 @@ export const getTrendingToday = query({
   },
 });
 
-const RECENT_ACTIVITY_LIMIT = 8;
+const RECENT_ACTIVITY_LIMIT = 100;
 
 export const getRecentActivity = query({
   args: { limit: v.optional(v.number()) },
