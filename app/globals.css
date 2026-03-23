@@ -55,6 +55,15 @@ body::before {
   z-index: -1;
 }
 
+/* Hide scrollbar but keep scroll */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Subtle vignette - darkens edges */
 body::after {
   content: '';

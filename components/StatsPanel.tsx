@@ -11,7 +11,6 @@ import {
   ChevronUp,
   Radio,
   Mic2,
-  TrendingUp,
 } from 'lucide-react';
 import { flag, name } from 'country-emoji';
 import type { Message } from '@/lib/types';
@@ -35,10 +34,6 @@ export function StatsPanel({ onOpenMessage }: Props) {
   const [hasRequestedRandom, setHasRequestedRandom] = useState(false);
   const [expanded, setExpanded] = useState(true);
   const [activityExpanded, setActivityExpanded] = useState(true);
-  const [trendingExpanded, setTrendingExpanded] = useState(true);
-  const trendingByReactions = useQuery(api.reactions.getTrendingByReactions, {
-    limit: 10,
-  });
   const randomMessage = useQuery(
     api.messages.getRandomMessage,
     randomSeed > 0 ? { seed: randomSeed } : 'skip',
@@ -243,81 +238,6 @@ export function StatsPanel({ onOpenMessage }: Props) {
               </motion.div>
             )}
             </AnimatePresence>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.15 }}
-          className={`flex shrink-0 flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0d1117]/95 shadow-xl backdrop-blur-md ${trendingExpanded ? 'max-h-[min(280px,38dvh)]' : ''}`}
-        >
-          <div className='flex items-center justify-between border-b border-white/10 px-4 py-2.5'>
-            <div className='flex items-center gap-2'>
-              <TrendingUp className='h-3.5 w-3.5 text-amber-400' />
-              <span className='text-[10px] font-semibold uppercase tracking-wider text-slate-500'>
-                Trending
-              </span>
-            </div>
-            <button
-              onClick={() => setTrendingExpanded(!trendingExpanded)}
-              className='rounded p-1 text-slate-500 transition hover:bg-white/5 hover:text-slate-200'
-              aria-label={trendingExpanded ? 'Collapse' : 'Expand'}
-            >
-              {trendingExpanded ? (
-                <ChevronUp className='h-3.5 w-3.5' />
-              ) : (
-                <ChevronDown className='h-3.5 w-3.5' />
-              )}
-            </button>
-          </div>
-
-          <AnimatePresence initial={false}>
-            {trendingExpanded && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                className='overflow-hidden'
-              >
-                <div className='max-h-[min(200px,28dvh)] overflow-y-auto'>
-                  <div className='space-y-1 p-2 pb-2'>
-                    {trendingByReactions && trendingByReactions.length > 0 ? (
-                      trendingByReactions.map((item, i) => (
-                        <button
-                          key={item.message._id}
-                          type='button'
-                          onClick={() => onOpenMessage?.(item.message)}
-                          className='flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs text-slate-400 transition hover:bg-amber-500/10 hover:text-slate-200'
-                        >
-                          <span className='w-4 shrink-0 font-mono text-[10px] text-slate-500'>
-                            {i + 1}
-                          </span>
-                          <span>
-                            {item.message.countryCode
-                              ? flag(item.message.countryCode)
-                              : '🌍'}
-                          </span>
-                          <span className='flex-1 truncate'>
-                            {item.message.countryCode
-                              ? name(item.message.countryCode) ?? 'Unknown'
-                              : 'Unknown'}
-                          </span>
-                          <span className='shrink-0 font-mono text-[10px] text-amber-400/80'>
-                            {item.reactionCount} ❤️
-                          </span>
-                        </button>
-                      ))
-                    ) : (
-                      <div className='py-4 text-center text-xs text-slate-500'>
-                        No reactions yet
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </motion.div>
       </div>
 

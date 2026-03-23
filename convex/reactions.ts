@@ -89,6 +89,17 @@ export const setReaction = mutation({
   },
 });
 
+const EMOJI_LABELS: Record<string, string> = {
+  heart: '❤️',
+  laugh: '😂',
+  cry: '😢',
+  fire: '🔥',
+  clap: '👏',
+  mindblown: '🤯',
+  party: '🎉',
+  wow: '😮',
+};
+
 export const getTrendingByReactions = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
@@ -96,25 +107,44 @@ export const getTrendingByReactions = query({
     const now = Date.now();
 
     const allReactions = await ctx.db.query('reactions').collect();
-    const countByMessage = new Map<Id<'messages'>, number>();
+    const totalByMessage = new Map<Id<'messages'>, number>();
+    const byMessageAndEmoji = new Map<
+      Id<'messages'>,
+      Partial<Record<Emoji, number>>
+    >();
 
     for (const r of allReactions) {
-      countByMessage.set(
+      totalByMessage.set(
         r.messageId,
-        (countByMessage.get(r.messageId) ?? 0) + 1,
+        (totalByMessage.get(r.messageId) ?? 0) + 1,
       );
+      const emojiMap = byMessageAndEmoji.get(r.messageId) ?? {};
+      emojiMap[r.emoji as Emoji] = (emojiMap[r.emoji as Emoji] ?? 0) + 1;
+      byMessageAndEmoji.set(r.messageId, emojiMap);
     }
 
-    const sorted = [...countByMessage.entries()]
+    const sorted = [...totalByMessage.entries()]
       .sort((a, b) => b[1] - a[1])
       .slice(0, limit * 2);
 
-    const results: { message: Doc<'messages'>; reactionCount: number }[] = [];
+    const results: {
+      message: Doc<'messages'>;
+      reactionCount: number;
+      topEmoji: string;
+    }[] = [];
     for (const [messageId, count] of sorted) {
       if (results.length >= limit) break;
       const msg = await ctx.db.get(messageId);
       if (msg && msg.expiresAt > now && !msg.replyTo) {
-        results.push({ message: msg, reactionCount: count });
+        const emojiMap = byMessageAndEmoji.get(messageId) ?? {};
+        const topKey = (EMOJIS.reduce((a, b) =>
+          (emojiMap[a] ?? 0) >= (emojiMap[b] ?? 0) ? a : b,
+        ) ?? 'heart') as Emoji;
+        results.push({
+          message: msg,
+          reactionCount: count,
+          topEmoji: EMOJI_LABELS[topKey] ?? '❤️',
+        });
       }
     }
 

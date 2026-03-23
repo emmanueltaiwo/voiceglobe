@@ -11,11 +11,42 @@ import { RecordModal } from '@/components/RecordModal';
 import { PlaceLoadingOverlay } from '@/components/PlaceLoadingOverlay';
 import { StatsPanel } from '@/components/StatsPanel';
 import { LocationSearch } from '@/components/LocationSearch';
+import { TrendingStrip } from '@/components/TrendingStrip';
 import { AppLoader } from '@/components/AppLoader';
 import { useRecording } from '@/hooks/useRecording';
 import type { Message } from '@/lib/types';
 
+const IS_DOWN = true;
+
+function DowntimeView() {
+  return (
+    <main className='relative z-10 flex h-dvh w-screen flex-col items-center justify-center overflow-hidden bg-void px-6'>
+      <div className='max-w-md text-center'>
+        <h1 className='font-mono text-2xl font-bold text-slate-200 md:text-3xl'>
+          VoiceGlobe is temporarily down
+        </h1>
+        <p className='mt-4 text-slate-400'>
+          We&apos;re experiencing a spike in traffic. I&apos;m working on it and
+          the app should be back up shortly.
+        </p>
+        <p className='mt-6 text-sm text-slate-500'>
+          Check for updates on{' '}
+          <a
+            href='https://twitter.com/ez0xai'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='text-emerald-400 underline transition hover:text-emerald-300'
+          >
+            @ez0xai
+          </a>
+        </p>
+      </div>
+    </main>
+  );
+}
+
 export default function Home() {
+  if (IS_DOWN) return <DowntimeView />;
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [isPlacing, setIsPlacing] = useState(false);
   const [pendingLocation, setPendingLocation] = useState<{
@@ -122,6 +153,9 @@ export default function Home() {
         {/* Mobile */}
         <div className='relative z-10 flex shrink-0 flex-col md:hidden'>
           <StatsPanel onOpenMessage={setMessageToOpen} />
+          <div className='shrink-0 border-b border-white/5 bg-void/80'>
+            <TrendingStrip onOpenMessage={setMessageToOpen} />
+          </div>
           <div className='shrink-0 bg-void/80 px-4 py-3 backdrop-blur-sm'>
             <LocationSearch
               onSelect={(lng, lat, zoom) => setSearchTarget({ lng, lat, zoom })}
@@ -133,13 +167,16 @@ export default function Home() {
         <div className='hidden md:block'>
           <StatsPanel onOpenMessage={setMessageToOpen} />
         </div>
-        <div className='absolute right-4 top-4 z-10 hidden w-64 md:block'>
+        <div className='absolute right-4 top-16 z-10 hidden w-64 md:block'>
           <LocationSearch
             onSelect={(lng, lat, zoom) => setSearchTarget({ lng, lat, zoom })}
           />
         </div>
 
         <div className='relative min-h-0 flex-1'>
+          <div className='absolute left-1/2 top-4 z-10 hidden w-[min(calc(100vw-22rem),600px)] -translate-x-1/2 md:block'>
+            <TrendingStrip onOpenMessage={setMessageToOpen} />
+          </div>
           <Globe
             onSelectLocation={
               hasPendingUpload ? handleSelectLocation : undefined
