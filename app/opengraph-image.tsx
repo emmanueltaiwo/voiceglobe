@@ -1,51 +1,51 @@
-import { ImageResponse } from 'next/og';
+import { ImageResponse } from "next/og";
 
-export const alt = 'VoiceGlobe — Transmit voice messages across the globe';
+export const alt = "VoiceGlobe — Transmit voice messages across the globe";
 export const size = { width: 1200, height: 630 };
-export const contentType = 'image/png';
+export const contentType = "image/png";
 
 export default async function Image() {
   return new ImageResponse(
     <div
       style={{
-        position: 'relative',
-        display: 'flex',
+        position: "relative",
+        display: "flex",
         width: 1200,
         height: 630,
-        flexDirection: 'column',
-        background: '#050810',
+        flexDirection: "column",
+        background: "#050810",
         padding: 32,
-        fontFamily: 'system-ui, sans-serif',
+        fontFamily: "system-ui, sans-serif",
       }}
     >
       <div
         style={{
-          position: 'absolute',
+          position: "absolute",
           inset: 0,
           background:
-            'radial-gradient(ellipse 80% 80% at 50% 50%, transparent 50%, rgba(2, 4, 12, 0.5) 100%)',
+            "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 50%, rgba(2, 4, 12, 0.5) 100%)",
           borderRadius: 16,
-          pointerEvents: 'none',
+          pointerEvents: "none",
         }}
       />
 
       <div
         style={{
           flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'rgba(13, 17, 23, 0.95)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "rgba(13, 17, 23, 0.95)",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
           borderRadius: 16,
           padding: 48,
         }}
       >
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
+            display: "flex",
+            alignItems: "center",
             gap: 12,
             marginBottom: 32,
           }}
@@ -55,14 +55,14 @@ export default async function Image() {
               width: 8,
               height: 8,
               borderRadius: 4,
-              background: '#a3e635',
+              background: "#a3e635",
             }}
           />
           <span
             style={{
               fontSize: 14,
               fontWeight: 600,
-              color: '#8b99a8',
+              color: "#8b99a8",
               letterSpacing: 4,
             }}
           >
@@ -73,9 +73,9 @@ export default async function Image() {
           style={{
             fontSize: 64,
             fontWeight: 700,
-            color: '#a3e635',
+            color: "#a3e635",
             marginBottom: 16,
-            fontFamily: 'system-ui, sans-serif',
+            fontFamily: "system-ui, sans-serif",
           }}
         >
           VoiceGlobe
@@ -83,7 +83,7 @@ export default async function Image() {
         <div
           style={{
             fontSize: 20,
-            color: '#8b99a8',
+            color: "#8b99a8",
             letterSpacing: 4,
             marginBottom: 32,
           }}
@@ -92,12 +92,12 @@ export default async function Image() {
         </div>
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             fontSize: 18,
-            color: '#8b99a8',
-            textAlign: 'center',
+            color: "#8b99a8",
+            textAlign: "center",
             lineHeight: 1.6,
           }}
         >
@@ -111,7 +111,7 @@ export default async function Image() {
           style={{
             width: 120,
             height: 4,
-            background: '#a3e635',
+            background: "#a3e635",
             marginTop: 40,
             borderRadius: 2,
           }}

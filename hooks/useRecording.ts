@@ -1,18 +1,20 @@
-'use client';
+"use client";
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from "react";
 
 const MAX_DURATION_MS = 10000;
 
 // Prefer MP4 (plays everywhere: iOS, Android, desktop). Fallback to WebM for Chrome/Firefox.
 function getPreferredAudioMimeType(): string {
-  if (typeof MediaRecorder === 'undefined') return 'audio/webm';
+  if (typeof MediaRecorder === "undefined") return "audio/webm";
   // MP4/AAC - best compatibility (iOS, Safari, all major browsers)
-  if (MediaRecorder.isTypeSupported?.('audio/mp4')) return 'audio/mp4';
-  if (MediaRecorder.isTypeSupported?.('audio/mp4;codecs=mp4a')) return 'audio/mp4;codecs=mp4a';
+  if (MediaRecorder.isTypeSupported?.("audio/mp4")) return "audio/mp4";
+  if (MediaRecorder.isTypeSupported?.("audio/mp4;codecs=mp4a"))
+    return "audio/mp4;codecs=mp4a";
   // WebM/Opus - Chrome, Firefox, Edge (not Safari/iOS)
-  if (MediaRecorder.isTypeSupported?.('audio/webm;codecs=opus')) return 'audio/webm;codecs=opus';
-  return 'audio/webm';
+  if (MediaRecorder.isTypeSupported?.("audio/webm;codecs=opus"))
+    return "audio/webm;codecs=opus";
+  return "audio/webm";
 }
 
 export function useRecording() {
@@ -54,7 +56,9 @@ export function useRecording() {
         stream.getTracks().forEach((t) => t.stop());
         if (chunksRef.current.length) {
           const blobType = recorder.mimeType || mimeType;
-          setAudioBlob(new Blob(chunksRef.current, { type: blobType || 'audio/webm' }));
+          setAudioBlob(
+            new Blob(chunksRef.current, { type: blobType || "audio/webm" }),
+          );
         }
       };
 
@@ -70,7 +74,7 @@ export function useRecording() {
       }, 100);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Failed to access microphone',
+        err instanceof Error ? err.message : "Failed to access microphone",
       );
     }
   }, []);
@@ -81,7 +85,7 @@ export function useRecording() {
       timerRef.current = null;
     }
     const recorder = mediaRecorderRef.current;
-    if (recorder && recorder.state !== 'inactive') {
+    if (recorder && recorder.state !== "inactive") {
       recorder.stop();
       setIsRecording(false);
     }

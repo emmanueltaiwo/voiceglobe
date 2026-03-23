@@ -8,31 +8,31 @@ export function createMicIconDataUrl(size = 32): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image();
     const svgBlob = new Blob([MIC_SVG], {
-      type: 'image/svg+xml;charset=utf-8',
+      type: "image/svg+xml;charset=utf-8",
     });
     const url = URL.createObjectURL(svgBlob);
 
     img.onload = () => {
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = size;
       canvas.height = size;
 
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
 
       if (!ctx) {
         URL.revokeObjectURL(url);
-        resolve('');
+        resolve("");
         return;
       }
 
       ctx.drawImage(img, 0, 0, size, size);
       URL.revokeObjectURL(url);
-      resolve(canvas.toDataURL('image/png'));
+      resolve(canvas.toDataURL("image/png"));
     };
 
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      resolve('');
+      resolve("");
     };
 
     img.src = url;

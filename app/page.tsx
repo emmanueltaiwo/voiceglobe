@@ -1,41 +1,39 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { useMutation } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import type { Id } from '@/convex/_generated/dataModel';
-import { motion, AnimatePresence } from 'motion/react';
-import { Mic } from 'lucide-react';
-import { Globe } from '@/components/Globe';
-import { RecordModal } from '@/components/RecordModal';
-import { PlaceLoadingOverlay } from '@/components/PlaceLoadingOverlay';
-import { StatsPanel } from '@/components/StatsPanel';
-import { LocationSearch } from '@/components/LocationSearch';
-import { TrendingStrip } from '@/components/TrendingStrip';
-import { AppLoader } from '@/components/AppLoader';
-import { useRecording } from '@/hooks/useRecording';
-import type { Message } from '@/lib/types';
+import { useState, useCallback } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { Mic } from "lucide-react";
+import { Globe } from "@/components/Globe";
+import { RecordModal } from "@/components/RecordModal";
+import { PlaceLoadingOverlay } from "@/components/PlaceLoadingOverlay";
+import { StatsPanel } from "@/components/StatsPanel";
+import { LocationSearch } from "@/components/LocationSearch";
+import { TrendingStrip } from "@/components/TrendingStrip";
+import { AppLoader } from "@/components/AppLoader";
+import { useRecording } from "@/hooks/useRecording";
+import { uploadAudio, createMessage } from "@/lib/api";
+import type { Message } from "@/lib/types";
 
-const IS_DOWN = true;
+const IS_DOWN = false;
 
 function DowntimeView() {
   return (
-    <main className='relative z-10 flex h-dvh w-screen flex-col items-center justify-center overflow-hidden bg-void px-6'>
-      <div className='max-w-md text-center'>
-        <h1 className='font-mono text-2xl font-bold text-slate-200 md:text-3xl'>
+    <main className="relative z-10 flex h-dvh w-screen flex-col items-center justify-center overflow-hidden bg-void px-6">
+      <div className="max-w-md text-center">
+        <h1 className="font-mono text-2xl font-bold text-slate-200 md:text-3xl">
           VoiceGlobe is temporarily down
         </h1>
-        <p className='mt-4 text-slate-400'>
+        <p className="mt-4 text-slate-400">
           We&apos;re experiencing a spike in traffic. I&apos;m working on it and
           the app should be back up shortly.
         </p>
-        <p className='mt-6 text-sm text-slate-500'>
-          Check for updates on{' '}
+        <p className="mt-6 text-sm text-slate-500">
+          Check for updates on{" "}
           <a
-            href='https://twitter.com/ez0xai'
-            target='_blank'
-            rel='noopener noreferrer'
-            className='text-emerald-400 underline transition hover:text-emerald-300'
+            href="https://twitter.com/ez0xai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-emerald-400 underline transition hover:text-emerald-300"
           >
             @ez0xai
           </a>
@@ -54,7 +52,6 @@ export default function Home() {
     lng: number;
   } | null>(null);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
-  const [popupReplyTo, setPopupReplyTo] = useState<Message | null>(null);
   const [messageToOpen, setMessageToOpen] = useState<Message | null>(null);
   const [searchTarget, setSearchTarget] = useState<{
     lng: number;
@@ -63,8 +60,6 @@ export default function Home() {
   } | null>(null);
 
   const recording = useRecording();
-  const generateUploadUrl = useMutation(api.messages.generateUploadUrl);
-  const createMessage = useMutation(api.messages.createMessage);
 
   const handleRecordClick = useCallback(() => {
     recording.reset();
@@ -92,52 +87,34 @@ export default function Home() {
     async (lat: number, lng: number) => {
       if (!recording.audioBlob) return;
       if (recording.duration > 10) {
-        console.error('Recording exceeds 10 second limit');
+        console.error("Recording exceeds 10 second limit");
         return;
       }
 
       setIsPlacing(true);
       try {
-        const uploadUrl = await generateUploadUrl();
-        const result = await fetch(uploadUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': recording.audioBlob.type },
-          body: recording.audioBlob,
-        });
-        if (!result.ok) throw new Error('Upload failed');
-        const { storageId } = (await result.json()) as {
-          storageId: Id<'_storage'>;
-        };
+        const { audioUrl } = await uploadAudio(recording.audioBlob);
         await createMessage({
           lat,
           lng,
-          audioStorageId: storageId,
+          audioUrl,
           duration: Math.round(recording.duration * 10) / 10,
           replyTo: replyTo?._id,
         });
         recording.reset();
         setPendingLocation(null);
         setReplyTo(null);
-        setPopupReplyTo(null);
       } catch (err) {
-        console.error('Failed to save message:', err);
+        console.error("Failed to save message:", err);
       } finally {
         setIsPlacing(false);
       }
     },
-    [
-      recording.audioBlob,
-      recording.duration,
-      replyTo,
-      generateUploadUrl,
-      createMessage,
-      recording,
-    ],
+    [recording.audioBlob, recording.duration, replyTo, recording],
   );
 
   const handleReplyClick = useCallback(
     (message: Message) => {
-      setPopupReplyTo(message);
       setReplyTo(message);
       recording.reset();
       setShowRecordModal(true);
@@ -148,15 +125,15 @@ export default function Home() {
   const hasPendingUpload = pendingLocation !== null;
 
   return (
-    <main className='relative z-10 flex h-dvh w-screen flex-col overflow-hidden bg-void'>
+    <main className="relative z-10 flex h-dvh w-screen flex-col overflow-hidden bg-void">
       <AppLoader>
         {/* Mobile */}
-        <div className='relative z-10 flex shrink-0 flex-col md:hidden'>
+        <div className="relative z-10 flex shrink-0 flex-col md:hidden">
           <StatsPanel onOpenMessage={setMessageToOpen} />
-          <div className='shrink-0 border-b border-white/5 bg-void/80'>
+          <div className="shrink-0 border-b border-white/5 bg-void/80">
             <TrendingStrip onOpenMessage={setMessageToOpen} />
           </div>
-          <div className='shrink-0 bg-void/80 px-4 py-3 backdrop-blur-sm'>
+          <div className="shrink-0 bg-void/80 px-4 py-3 backdrop-blur-sm">
             <LocationSearch
               onSelect={(lng, lat, zoom) => setSearchTarget({ lng, lat, zoom })}
             />
@@ -164,17 +141,17 @@ export default function Home() {
         </div>
 
         {/* Desktop only */}
-        <div className='hidden md:block'>
+        <div className="hidden md:block">
           <StatsPanel onOpenMessage={setMessageToOpen} />
         </div>
-        <div className='absolute right-4 top-16 z-10 hidden w-64 md:block'>
+        <div className="absolute right-4 top-16 z-10 hidden w-64 md:block">
           <LocationSearch
             onSelect={(lng, lat, zoom) => setSearchTarget({ lng, lat, zoom })}
           />
         </div>
 
-        <div className='relative min-h-0 flex-1'>
-          <div className='absolute left-1/2 top-4 z-10 hidden w-[min(calc(100vw-22rem),600px)] -translate-x-1/2 md:block'>
+        <div className="relative min-h-0 flex-1">
+          <div className="absolute left-1/2 top-4 z-10 hidden w-[min(calc(100vw-22rem),600px)] -translate-x-1/2 md:block">
             <TrendingStrip onOpenMessage={setMessageToOpen} />
           </div>
           <Globe
@@ -193,39 +170,39 @@ export default function Home() {
           />
         </div>
 
-        <div className='absolute bottom-4 left-1/2 z-10 -translate-x-1/2 pb-[env(safe-area-inset-bottom)] md:left-auto md:right-4 md:bottom-4 md:translate-x-0 md:pb-0'>
+        <div className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 pb-[env(safe-area-inset-bottom)] md:left-auto md:right-4 md:bottom-4 md:translate-x-0 md:pb-0">
           {!showRecordModal && !hasPendingUpload && (
             <motion.button
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{
                 delay: 0.3,
-                type: 'spring',
+                type: "spring",
                 stiffness: 400,
                 damping: 25,
               }}
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.92 }}
               onClick={handleRecordClick}
-              className='flex h-14 w-14 min-w-[56px] items-center justify-center rounded-2xl border-2 border-emerald-500/70 bg-[#0d1117]/95 text-emerald-400 shadow-xl shadow-black/40 md:h-12 md:w-12 md:min-w-[48px] md:rounded-xl'
-              aria-label='Record'
+              className="flex h-14 w-14 min-w-[56px] items-center justify-center rounded-2xl border-2 border-emerald-500/70 bg-[#0d1117]/95 text-emerald-400 shadow-xl shadow-black/40 md:h-12 md:w-12 md:min-w-[48px] md:rounded-xl"
+              aria-label="Record"
             >
               <motion.div
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{
                   duration: 1.5,
                   repeat: Infinity,
-                  ease: 'easeInOut',
+                  ease: "easeInOut",
                 }}
               >
-                <Mic className='h-6 w-6 md:h-5 md:w-5' strokeWidth={2} />
+                <Mic className="h-6 w-6 md:h-5 md:w-5" strokeWidth={2} />
               </motion.div>
             </motion.button>
           )}
         </div>
 
         <AnimatePresence>
-          {isPlacing && <PlaceLoadingOverlay key='placing' />}
+          {isPlacing && <PlaceLoadingOverlay key="placing" />}
           {showRecordModal && (
             <RecordModal
               duration={recording.duration}

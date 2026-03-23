@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 :root {
   --void: #050810;
@@ -45,7 +45,7 @@ body {
 
 /* Starfield background - subtle white speckles (space ambiance) */
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='s'%3E%3CfeGaussianBlur stdDeviation='0.5'/%3E%3C/filter%3E%3Cg fill='%23fff' fill-opacity='0.35' filter='url(%23s)'%3E%3Ccircle cx='20' cy='30' r='0.5'/%3E%3Ccircle cx='80' cy='120' r='0.5'/%3E%3Ccircle cx='150' cy='45' r='0.5'/%3E%3Ccircle cx='220' cy='180' r='0.5'/%3E%3Ccircle cx='290' cy='90' r='0.5'/%3E%3Ccircle cx='350' cy='250' r='0.5'/%3E%3Ccircle cx='45' cy='200' r='0.5'/%3E%3Ccircle cx='120' cy='280' r='0.5'/%3E%3Ccircle cx='200' cy='350' r='0.5'/%3E%3Ccircle cx='280' cy='150' r='0.5'/%3E%3Ccircle cx='15' cy='340' r='0.5'/%3E%3Ccircle cx='180' cy='80' r='0.5'/%3E%3Ccircle cx='340' cy='20' r='0.5'/%3E%3Ccircle cx='60' cy='380' r='0.5'/%3E%3Ccircle cx='380' cy='320' r='0.5'/%3E%3C/g%3E%3C/svg%3E");
@@ -66,7 +66,7 @@ body::before {
 
 /* Subtle vignette - darkens edges */
 body::after {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   background: radial-gradient(

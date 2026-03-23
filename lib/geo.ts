@@ -1,5 +1,5 @@
-import { iso1A2Code } from 'country-coder';
-import { flag, name } from 'country-emoji';
+import { iso1A2Code } from "country-coder";
+import { flag, name } from "country-emoji";
 
 export function getCountryFromCoords(
   lat: number,

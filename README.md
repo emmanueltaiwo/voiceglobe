@@ -6,6 +6,6 @@ Leave and discover short voice messages anywhere on Earth. Record a voice messag
 
 - Next.js (App Router), TypeScript, Tailwind CSS
 - Mapbox GL JS (3D globe)
-- Convex (database, file storage, cron)
+- MongoDB (database), Cloudinary (audio storage)
 - MediaRecorder API (voice recording)
 - Motion (animations)
