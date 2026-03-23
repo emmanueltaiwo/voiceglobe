@@ -4,10 +4,12 @@ import { useRef, useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { useQuery } from 'convex/react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useClientId } from '@/hooks/useClientId';
 import { api } from '@/convex/_generated/api';
 import { Play, Square, MessageCircle, MapPin, X, Award } from 'lucide-react';
 import type { Message } from '@/lib/types';
 import { getCountryFromCoords } from '@/lib/geo';
+import { ReactionBar } from '@/components/ReactionBar';
 
 type Props = {
   message: Message;
@@ -36,6 +38,7 @@ export function MarkerPopup({
     () => getCountryFromCoords(message.lat, message.lng),
     [message.lat, message.lng],
   );
+  const clientId = useClientId();
 
   const togglePlay = () => {
     const audio = audioRef.current;
@@ -146,6 +149,9 @@ export function MarkerPopup({
           <X className='h-4 w-4 md:h-3.5 md:w-3.5' strokeWidth={2} />
         </motion.button>
       </div>
+      <div className='border-t border-white/10 px-4 py-2'>
+        <ReactionBar messageId={message._id} clientId={clientId} />
+      </div>
       {playError && (
         <p className='border-t border-white/10 px-4 py-2 text-[10px] text-amber-400'>
           Unable to play this recording.
@@ -178,6 +184,7 @@ export function MarkerPopup({
                   formatTimestamp={formatTimestamp}
                   onShowOnMap={onShowOnMap}
                   onClose={onClose}
+                  clientId={clientId}
                 />
               </motion.div>
             ))}
@@ -210,12 +217,14 @@ function ReplyItem({
   formatTimestamp,
   onShowOnMap,
   onClose,
+  clientId,
 }: {
   reply: Message;
   formatDuration: (s: number) => string;
   formatTimestamp: (ms: number) => string;
   onShowOnMap?: (lng: number, lat: number) => void;
   onClose?: () => void;
+  clientId: string | null;
 }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -267,12 +276,15 @@ function ReplyItem({
         playsInline
       />
       <div className='min-w-0 flex-1'>
-        <p className='font-mono text-sm tabular-nums text-text md:text-[10px]'>
-          {formatDuration(reply.duration)}
-        </p>
-        <p className='text-[10px] text-text-dim md:text-[9px]'>
-          {formatTimestamp(reply.createdAt)}
-        </p>
+        <div className='flex flex-wrap items-center gap-x-2 gap-y-1'>
+          <p className='font-mono text-sm tabular-nums text-text md:text-[10px]'>
+            {formatDuration(reply.duration)}
+          </p>
+          <p className='text-[10px] text-text-dim md:text-[9px]'>
+            {formatTimestamp(reply.createdAt)}
+          </p>
+        </div>
+        <ReactionBar messageId={reply._id} clientId={clientId} compact />
       </div>
       {onShowOnMap && (
         <motion.button

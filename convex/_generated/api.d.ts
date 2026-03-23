@@ -10,6 +10,7 @@
 
 import type * as crons from "../crons.js";
 import type * as messages from "../messages.js";
+import type * as reactions from "../reactions.js";
 
 import type {
   ApiFromModules,
@@ -20,6 +21,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   messages: typeof messages;
+  reactions: typeof reactions;
 }>;
 
 /**

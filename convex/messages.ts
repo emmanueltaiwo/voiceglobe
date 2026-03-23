@@ -241,6 +241,13 @@ export const deleteExpiredMessages = internalMutation({
       .withIndex('by_expiry', (q) => q.lt('expiresAt', now))
       .collect();
     for (const msg of expired) {
+      const reactions = await ctx.db
+        .query('reactions')
+        .withIndex('by_message', (q) => q.eq('messageId', msg._id))
+        .collect();
+      for (const r of reactions) {
+        await ctx.db.delete(r._id);
+      }
       await ctx.db.delete(msg._id);
     }
   },
