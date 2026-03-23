@@ -112,7 +112,13 @@ export default function Home() {
         setIsPlacing(false);
       }
     },
-    [recording.audioBlob, recording.duration, replyTo, recording, createMessage],
+    [
+      recording.audioBlob,
+      recording.duration,
+      replyTo,
+      recording,
+      createMessage,
+    ],
   );
 
   const handleReplyClick = useCallback(

@@ -49,7 +49,7 @@ export function TrendingStrip({ onOpenMessage }: Props) {
               </span>
               <span className="max-w-[80px] truncate text-xs text-slate-300 md:max-w-[100px] md:text-sm">
                 {item.message.countryCode
-                  ? name(item.message.countryCode) ?? "—"
+                  ? (name(item.message.countryCode) ?? "—")
                   : "—"}
               </span>
               <span className="flex items-center gap-1 font-mono text-[10px] text-amber-400/90 md:text-xs">

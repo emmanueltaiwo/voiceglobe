@@ -21,7 +21,7 @@ export function useCreateMessage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.stats });
-      queryClient.invalidateQueries({ queryKey: queryKeys.recent });
+      // recent activity comes via WebSocket
       queryClient.invalidateQueries({ queryKey: queryKeys.trendingToday });
       queryClient.invalidateQueries({ queryKey: queryKeys.trendingReactions });
       queryClient.invalidateQueries({ queryKey: ["messages"] });

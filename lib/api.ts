@@ -1,6 +1,20 @@
 import type { Message } from "./types";
 
-const API = "";
+export const API =
+  typeof window !== "undefined"
+    ? (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000")
+    : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000");
+
+/** Derive WebSocket URL for /ws/recent from API base */
+export function getWsRecentUrl(limit?: number): string {
+  const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+  const u = new URL(base);
+  u.protocol = u.protocol === "https:" ? "wss:" : "ws:";
+  u.pathname = "/ws/recent";
+  u.search = limit !== undefined ? `?limit=${limit}` : "";
+  u.hash = "";
+  return u.toString();
+}
 
 export async function uploadAudio(blob: Blob): Promise<{ audioUrl: string }> {
   const formData = new FormData();
@@ -52,17 +66,6 @@ export async function getStats(): Promise<{
 }> {
   const res = await fetch(`${API}/api/messages/stats`);
   if (!res.ok) throw new Error("Failed to fetch stats");
-  return res.json();
-}
-
-export async function getRecentActivity(
-  limit?: number,
-): Promise<
-  (Message & { countryName: string | null; countryFlag: string | null })[]
-> {
-  const q = limit ? `?limit=${limit}` : "";
-  const res = await fetch(`${API}/api/messages/recent${q}`);
-  if (!res.ok) throw new Error("Failed to fetch recent activity");
   return res.json();
 }
 

@@ -40,7 +40,7 @@ export function MarkerPopup({
   });
   const country = useMemo(
     () => getCountryFromCoords(message.lat, message.lng),
-    [message.lat, message.lng]
+    [message.lat, message.lng],
   );
   const clientId = useClientId();
 

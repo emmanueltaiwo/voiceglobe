@@ -10,3 +10,9 @@ export type Message = {
   countryCode?: string;
   isFirstInCountry?: boolean;
 };
+
+/** Message from WebSocket recent feed (includes country display fields) */
+export type RecentMessage = Message & {
+  countryName: string | null;
+  countryFlag: string | null;
+};

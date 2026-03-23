@@ -14,7 +14,7 @@ import { queryKeys } from "@/lib/queryKeys";
 const MAPBOX_TOKEN =
   typeof process !== "undefined"
     ? (process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ??
-        process.env.NEXT_PUBLIC_MAPBOX_TOKEN)
+      process.env.NEXT_PUBLIC_MAPBOX_TOKEN)
     : undefined;
 
 type Bounds = {
@@ -394,12 +394,12 @@ export function Globe({
             map.setPaintProperty(
               "user-location-pulse-outer",
               "circle-radius",
-              radius
+              radius,
             );
             map.setPaintProperty(
               "user-location-pulse-outer",
               "circle-opacity",
-              opacity
+              opacity,
             );
           }
         }, 50);
@@ -420,7 +420,7 @@ export function Globe({
         }
         setIsLocating(false);
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
     );
   }, []);
 
@@ -550,7 +550,8 @@ export function Globe({
                         address bar
                       </li>
                       <li>
-                        Find &quot;Location&quot; and set it to &quot;Allow&quot;
+                        Find &quot;Location&quot; and set it to
+                        &quot;Allow&quot;
                       </li>
                       <li>Refresh the page and try again</li>
                     </ol>
