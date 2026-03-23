@@ -442,13 +442,13 @@ export function Globe({
             whileTap={{ scale: 0.97 }}
             onClick={flyToCurrentLocation}
             disabled={isLocating || !mapReady}
-            className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-[#0d1117]/95 px-3 py-2.5 text-xs font-mono uppercase leading-tight tracking-wider text-slate-200 shadow-xl shadow-black/40 backdrop-blur-md transition disabled:opacity-60 md:py-2 md:text-[10px]"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#0d1117]/95 px-3 py-2.5 text-xs font-mono uppercase leading-tight tracking-wider text-slate-200 shadow-xl shadow-black/40 backdrop-blur-md transition disabled:opacity-60 md:min-h-0 md:min-w-0 md:rounded-lg md:py-2 md:text-[10px]"
             title="Go to my location"
           >
             {isLocating ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
+              <Loader2 className="h-3.5 w-3.5 animate-spin md:h-3 md:w-3" strokeWidth={2} />
             ) : (
-              <Locate className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+              <Locate className="h-3.5 w-3.5 shrink-0 md:h-3 md:w-3" strokeWidth={2} />
             )}
             <span className="hidden md:inline">My location</span>
           </motion.button>
@@ -463,10 +463,10 @@ export function Globe({
           whileHover={{ scale: 1.03, borderColor: "rgba(163, 230, 53, 0.8)" }}
           whileTap={{ scale: 0.97 }}
           onClick={flyToRandom}
-          className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-[#0d1117]/95 px-3 py-2.5 text-left text-xs font-mono uppercase leading-tight tracking-wider text-slate-200 shadow-xl shadow-black/40 backdrop-blur-md transition md:py-2 md:text-[10px]"
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#0d1117]/95 px-3 py-2.5 text-left text-xs font-mono uppercase leading-tight tracking-wider text-slate-200 shadow-xl shadow-black/40 backdrop-blur-md transition md:min-h-0 md:min-w-0 md:rounded-lg md:py-2 md:text-[10px]"
           title="Fly to a random location on the map"
         >
-          <Shuffle className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+          <Shuffle className="h-3.5 w-3.5 shrink-0 md:h-3 md:w-3" strokeWidth={2} />
           <span className="hidden md:inline">Navigate to random</span>
         </motion.button>
         {onSelectLocation && (
@@ -490,7 +490,7 @@ export function Globe({
                     }
                   : startDropPin
               }
-              className={`rounded-lg border px-4 py-2.5 text-xs font-mono uppercase tracking-wider shadow-xl shadow-black/40 backdrop-blur-md transition md:px-3 md:py-2 md:text-[10px] ${
+              className={`min-h-[44px] rounded-xl border px-4 py-2.5 text-xs font-mono uppercase tracking-wider shadow-xl shadow-black/40 backdrop-blur-md transition md:min-h-0 md:rounded-lg md:px-3 md:py-2 md:text-[10px] ${
                 isClickMode
                   ? "border-red-500/70 bg-red-500/20 text-red-400"
                   : "border-white/10 bg-[#0d1117]/95 text-slate-200"

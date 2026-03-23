@@ -72,10 +72,10 @@ export function RecordModal({
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={onCancel}
-            className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white transition"
+            className="-mr-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 text-slate-400 transition hover:bg-white/10 hover:text-white"
             aria-label="Close"
           >
-            <X className="h-4 w-4" strokeWidth={2} />
+            <X className="h-5 w-5" strokeWidth={2} />
           </motion.button>
         </div>
 
@@ -112,7 +112,7 @@ export function RecordModal({
                   whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
                   whileTap={{ scale: 0.98 }}
                   onClick={onCancel}
-                  className="flex-1 rounded-lg border border-white/20 py-3.5 text-[10px] font-mono uppercase tracking-wider text-slate-300 transition hover:bg-white/5 sm:py-3"
+                  className="flex min-h-[48px] flex-1 items-center justify-center rounded-xl border border-white/20 py-3.5 text-[10px] font-mono uppercase tracking-wider text-slate-300 transition hover:bg-white/5 sm:min-h-0 sm:rounded-lg sm:py-3"
                 >
                   Cancel
                 </motion.button>
@@ -120,7 +120,7 @@ export function RecordModal({
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={onStart}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-emerald-500 bg-emerald-500 py-3.5 text-[10px] font-mono uppercase tracking-wider text-white transition hover:bg-emerald-600 sm:py-3"
+                  className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-xl border-2 border-emerald-500 bg-emerald-500 py-3.5 text-[10px] font-mono uppercase tracking-wider text-white transition hover:bg-emerald-600 sm:min-h-0 sm:rounded-lg sm:py-3"
                 >
                   <Mic className="h-3.5 w-3.5" strokeWidth={2} />
                   Start
@@ -186,7 +186,7 @@ export function RecordModal({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onStop}
-                className="w-full rounded-lg border-2 border-red-500 bg-red-500/20 py-3.5 text-[10px] font-mono uppercase tracking-wider text-red-400 transition hover:bg-red-500/30 sm:py-3"
+                className="flex min-h-[48px] w-full items-center justify-center rounded-xl border-2 border-red-500 bg-red-500/20 py-3.5 text-[10px] font-mono uppercase tracking-wider text-red-400 transition hover:bg-red-500/30 sm:min-h-0 sm:rounded-lg sm:py-3"
               >
                 Stop
               </motion.button>
@@ -229,7 +229,7 @@ export function RecordModal({
                   whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
                   whileTap={{ scale: 0.98 }}
                   onClick={onCancel}
-                  className="flex-1 rounded-lg border border-white/20 py-3.5 text-[10px] font-mono uppercase tracking-wider text-slate-300 transition hover:bg-white/5 sm:py-3"
+                  className="flex min-h-[48px] flex-1 items-center justify-center rounded-xl border border-white/20 py-3.5 text-[10px] font-mono uppercase tracking-wider text-slate-300 transition hover:bg-white/5 sm:min-h-0 sm:rounded-lg sm:py-3"
                 >
                   Again
                 </motion.button>
@@ -238,7 +238,7 @@ export function RecordModal({
                   whileTap={duration <= maxDuration ? { scale: 0.98 } : {}}
                   onClick={duration <= maxDuration ? onUse : undefined}
                   disabled={duration > maxDuration}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-emerald-500 bg-emerald-500 py-3.5 text-[10px] font-mono uppercase tracking-wider text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 sm:py-3"
+                  className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-xl border-2 border-emerald-500 bg-emerald-500 py-3.5 text-[10px] font-mono uppercase tracking-wider text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-0 sm:rounded-lg sm:py-3"
                 >
                   <MapPin className="h-3.5 w-3.5" strokeWidth={2} />
                   Place

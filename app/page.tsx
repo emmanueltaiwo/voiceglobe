@@ -1,21 +1,98 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { Suspense, useState, useCallback, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
-import { Mic } from "lucide-react";
+import { Mic, ChevronDown, Heart } from "lucide-react";
 import { Globe } from "@/components/Globe";
 import { RecordModal } from "@/components/RecordModal";
 import { PlaceLoadingOverlay } from "@/components/PlaceLoadingOverlay";
 import { StatsPanel } from "@/components/StatsPanel";
 import { LocationSearch } from "@/components/LocationSearch";
+import { MessageIdSearch } from "@/components/MessageIdSearch";
 import { TrendingStrip } from "@/components/TrendingStrip";
 import { AppLoader } from "@/components/AppLoader";
 import { useRecording } from "@/hooks/useRecording";
-import { uploadAudio } from "@/lib/api";
+import { uploadAudio, getMessage } from "@/lib/api";
 import { useCreateMessage } from "@/lib/useMutations";
 import type { Message } from "@/lib/types";
 
 const IS_DOWN = false;
+
+function MobileShell({
+  onOpenMessage,
+  setSearchTarget,
+}: {
+  onOpenMessage: (m: Message) => void;
+  setSearchTarget: (t: { lng: number; lat: number; zoom?: number }) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="relative z-10 flex shrink-0 flex-col md:hidden">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setExpanded(!expanded)}
+        onKeyDown={(e) => e.key === "Enter" && setExpanded((v) => !v)}
+        className="flex w-full cursor-pointer items-center gap-2 border-b border-white/5 bg-[#0d1117]/95 px-3 py-3 active:bg-white/5"
+        aria-expanded={expanded}
+      >
+        <div className="min-w-0 flex-1">
+          <StatsPanel onOpenMessage={onOpenMessage} compact />
+        </div>
+        <span
+          className={`shrink-0 text-slate-500 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+        >
+          <ChevronDown className="h-5 w-5" strokeWidth={2} />
+        </span>
+      </div>
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden"
+          >
+            <div className="border-b border-white/5 bg-void/80">
+              <TrendingStrip onOpenMessage={onOpenMessage} />
+            </div>
+            <div className="space-y-3 border-t border-white/5 bg-[#050810]/90 px-4 py-4">
+              <p className="text-xs font-medium text-slate-500">Search</p>
+              <LocationSearch
+                onSelect={(lng, lat, zoom) => {
+                  setSearchTarget({ lng, lat, zoom });
+                  setExpanded(false);
+                }}
+              />
+              <MessageIdSearch
+                onOpenOnMap={(msg) => {
+                  onOpenMessage(msg);
+                  setExpanded(false);
+                }}
+              />
+            </div>
+            <a
+              href="http://paystack.shop/pay/supportvoiceglobe"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mx-4 mb-4 mt-2 block rounded-xl border border-white/10 bg-[#0d1117]/95 px-4 py-3 text-center transition hover:border-emerald-500/30 hover:bg-[#0d1117]"
+            >
+              <p className="text-[9px] text-slate-500">
+                Solo project — donate to help with server costs
+              </p>
+              <span className="mt-0.5 inline-flex items-center justify-center gap-1 text-[10px] font-medium text-emerald-400">
+                <Heart className="h-2.5 w-2.5" strokeWidth={2} />
+                Support VoiceGlobe
+              </span>
+            </a>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 function DowntimeView() {
   return (
@@ -44,7 +121,12 @@ function DowntimeView() {
   );
 }
 
-export default function Home() {
+function isValidMessageId(id: string): boolean {
+  return /^[a-fA-F0-9]{24}$/.test(id);
+}
+
+function HomeContent() {
+  const searchParams = useSearchParams();
   if (IS_DOWN) return <DowntimeView />;
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [isPlacing, setIsPlacing] = useState(false);
@@ -62,6 +144,17 @@ export default function Home() {
 
   const recording = useRecording();
   const createMessage = useCreateMessage();
+
+  const hasProcessedMessageParam = useRef(false);
+  useEffect(() => {
+    if (hasProcessedMessageParam.current) return;
+    const messageId = searchParams.get("message");
+    if (!messageId || !isValidMessageId(messageId)) return;
+    hasProcessedMessageParam.current = true;
+    getMessage(messageId).then((m) => {
+      if (m) setMessageToOpen(m);
+    });
+  }, [searchParams]);
 
   const handleRecordClick = useCallback(() => {
     recording.reset();
@@ -135,27 +228,28 @@ export default function Home() {
   return (
     <main className="relative z-10 flex h-dvh w-screen flex-col overflow-hidden bg-void">
       <AppLoader>
-        {/* Mobile */}
-        <div className="relative z-10 flex shrink-0 flex-col md:hidden">
-          <StatsPanel onOpenMessage={setMessageToOpen} />
-          <div className="shrink-0 border-b border-white/5 bg-void/80">
-            <TrendingStrip onOpenMessage={setMessageToOpen} />
-          </div>
-          <div className="shrink-0 bg-void/80 px-4 py-3 backdrop-blur-sm">
-            <LocationSearch
-              onSelect={(lng, lat, zoom) => setSearchTarget({ lng, lat, zoom })}
-            />
-          </div>
-        </div>
+        {/* Mobile - collapsible top for more map space */}
+        <MobileShell
+          onOpenMessage={setMessageToOpen}
+          setSearchTarget={setSearchTarget}
+        />
 
         {/* Desktop only */}
         <div className="hidden md:block">
           <StatsPanel onOpenMessage={setMessageToOpen} />
         </div>
-        <div className="absolute right-4 top-16 z-10 hidden w-64 md:block">
-          <LocationSearch
-            onSelect={(lng, lat, zoom) => setSearchTarget({ lng, lat, zoom })}
-          />
+        <div className="absolute right-4 top-16 z-10 hidden w-96 flex-col gap-3 md:flex">
+          <div className="rounded-xl border border-white/10 bg-[#0d1117]/95 p-3 shadow-xl backdrop-blur-md">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+              Search
+            </p>
+            <div className="space-y-3">
+              <LocationSearch
+                onSelect={(lng, lat, zoom) => setSearchTarget({ lng, lat, zoom })}
+              />
+              <MessageIdSearch onOpenOnMap={setMessageToOpen} />
+            </div>
+          </div>
         </div>
 
         <div className="relative min-h-0 flex-1">
@@ -225,5 +319,19 @@ export default function Home() {
         </AnimatePresence>
       </AppLoader>
     </main>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-dvh items-center justify-center bg-void">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-500/50 border-t-emerald-400" />
+        </main>
+      }
+    >
+      <HomeContent />
+    </Suspense>
   );
 }

@@ -37,7 +37,7 @@ export function TrendingStrip({ onOpenMessage }: Props) {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => onOpenMessage?.(item.message)}
-              className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/15 bg-[#0d1117]/90 px-3 py-1.5 backdrop-blur-md transition hover:border-amber-500/40 hover:bg-amber-500/10 md:gap-2 md:px-3.5 md:py-2"
+              className="flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border border-white/15 bg-[#0d1117]/90 px-4 py-2.5 backdrop-blur-md transition hover:border-amber-500/40 hover:bg-[#0d1117] md:min-h-0 md:gap-2 md:px-3.5 md:py-2"
             >
               <span className="font-mono text-[10px] text-slate-500 md:text-xs">
                 {i + 1}

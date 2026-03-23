@@ -75,8 +75,8 @@ export function ReactionBar({ messageId, clientId, compact }: Props) {
             whileTap={{ scale: 0.9 }}
             onClick={() => handleClick(emoji)}
             disabled={setReaction.isPending}
-            className={`flex items-center gap-1 rounded-full px-2 py-1 transition ${
-              compact ? "px-1.5 py-0.5" : ""
+            className={`flex items-center gap-1 rounded-full transition ${
+              compact ? "px-1.5 py-0.5" : "min-h-[36px] min-w-[36px] justify-center px-2.5 py-1.5 md:min-h-0 md:min-w-0 md:px-2 md:py-1"
             } ${
               isMine
                 ? "bg-emerald-500/20 ring-1 ring-emerald-500/50"

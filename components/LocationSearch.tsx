@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Search, X, Loader2 } from "lucide-react";
+import { Search, X, Loader2, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 const MAPBOX_TOKEN =
@@ -88,12 +88,12 @@ export function LocationSearch({ onSelect }: Props) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className={`flex items-center gap-2 rounded-xl border border-white/10 bg-[#0d1117]/95 px-3 py-2.5 shadow-xl shadow-black/40 backdrop-blur-md transition md:py-2 ${
-          isOpen ? "border-emerald-500/50 ring-2 ring-emerald-500/20" : ""
+        className={`flex items-center gap-3 rounded-xl border border-white/15 bg-[#0d1117] px-4 py-3 shadow-lg transition md:py-2.5 ${
+          isOpen ? "border-emerald-500/40 shadow-emerald-500/5" : "hover:border-white/20"
         }`}
       >
         <Search
-          className="h-4 w-4 shrink-0 text-slate-400 md:h-3.5 md:w-3.5"
+          className="h-4 w-4 shrink-0 text-slate-500"
           strokeWidth={2}
         />
         <input
@@ -103,7 +103,7 @@ export function LocationSearch({ onSelect }: Props) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
           placeholder="Search city or place..."
-          className="min-w-0 flex-1 bg-transparent text-sm font-mono uppercase tracking-wider text-slate-200 placeholder-slate-500 outline-none md:text-xs"
+          className="min-w-0 flex-1 bg-transparent text-base text-slate-200 placeholder-slate-600 outline-none md:text-sm"
         />
         {query && (
           <motion.button
@@ -114,53 +114,38 @@ export function LocationSearch({ onSelect }: Props) {
               setResults([]);
               inputRef.current?.focus();
             }}
-            className="shrink-0 rounded-sm p-1 text-slate-500 transition hover:bg-white/10 hover:text-slate-200"
+            className="shrink-0 rounded-md p-1.5 text-slate-500 transition hover:bg-white/10 hover:text-slate-300"
           >
-            <X className="h-4 w-4 md:h-3 md:w-3" strokeWidth={2.5} />
+            <X className="h-4 w-4" strokeWidth={2.5} />
           </motion.button>
         )}
       </motion.div>
       <AnimatePresence>
         {isOpen && (results.length > 0 || isLoading) && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-            className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-xl border border-white/10 bg-[#0d1117]/98 shadow-xl shadow-black/40 backdrop-blur-md"
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.15 }}
+            className="absolute left-0 right-0 top-full z-50 mt-2 max-h-56 overflow-y-auto rounded-xl border border-white/15 bg-[#0d1117] shadow-xl"
           >
             {isLoading ? (
-              <div className="flex items-center justify-center gap-3 px-4 py-8">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                >
-                  <Loader2
-                    className="h-4 w-4 text-emerald-400"
-                    strokeWidth={2}
-                  />
-                </motion.div>
-                <span className="text-xs font-mono uppercase tracking-wider text-slate-500">
-                  Scanning...
-                </span>
+              <div className="flex items-center justify-center gap-3 px-4 py-6">
+                <Loader2 className="h-4 w-4 animate-spin text-emerald-400" strokeWidth={2} />
+                <span className="text-sm text-slate-500">Searching...</span>
               </div>
             ) : (
               results.map((r, i) => (
                 <motion.button
                   key={r.id}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.03 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: i * 0.02 }}
                   onClick={() => handleSelect(r)}
-                  className="flex w-full items-center gap-3 border-b border-white/10 px-4 py-3 text-left text-sm text-slate-200 transition last:border-b-0 hover:bg-white/5 hover:text-emerald-400 md:py-2.5 md:text-xs"
+                  className="flex min-h-[44px] w-full items-center gap-3 border-b border-white/10 px-4 py-3 text-left text-base text-slate-200 transition last:border-b-0 hover:bg-emerald-500/10 hover:text-emerald-400 md:min-h-0 md:text-sm"
                 >
-                  <Search
-                    className="h-3 w-3 shrink-0 text-slate-500"
-                    strokeWidth={2}
-                  />
-                  <span className="truncate font-mono uppercase tracking-wider">
-                    {r.place_name}
-                  </span>
+                  <MapPin className="h-4 w-4 shrink-0 text-slate-500" strokeWidth={2} />
+                  <span className="truncate">{r.place_name}</span>
                 </motion.button>
               ))
             )}

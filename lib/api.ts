@@ -85,6 +85,13 @@ export async function getTrendingToday(): Promise<{
   return res.json();
 }
 
+export async function getMessage(id: string): Promise<Message | null> {
+  const res = await fetch(`${API}/api/messages/${id}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error("Failed to fetch message");
+  return res.json();
+}
+
 export async function getReplies(messageId: string): Promise<Message[]> {
   const res = await fetch(`${API}/api/messages/${messageId}/replies`);
   if (!res.ok) throw new Error("Failed to fetch replies");

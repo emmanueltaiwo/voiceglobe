@@ -27,9 +27,11 @@ function formatTimeAgo(ms: number): string {
 
 type Props = {
   onOpenMessage?: (message: Message) => void;
+  /** When true (mobile), only render the compact bar, no donate */
+  compact?: boolean;
 };
 
-export function StatsPanel({ onOpenMessage }: Props) {
+export function StatsPanel({ onOpenMessage, compact }: Props) {
   const { data: stats } = useQuery({
     queryKey: queryKeys.stats,
     queryFn: getStats,
@@ -253,7 +255,7 @@ export function StatsPanel({ onOpenMessage }: Props) {
           href="http://paystack.shop/pay/support-voiceglobe"
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-3 shrink-0 rounded-xl border border-white/10 bg-[#0d1117]/95 px-4 py-3 transition hover:border-emerald-500/30 hover:bg-emerald-500/5"
+          className="mt-3 shrink-0 rounded-xl border border-white/10 bg-[#0d1117]/95 px-4 py-3 transition hover:border-emerald-500/30 hover:bg-[#0d1117]"
         >
           <p className="text-[10px] text-slate-500">
             Run by a single developer. Consider donating to cover server costs.
@@ -269,9 +271,9 @@ export function StatsPanel({ onOpenMessage }: Props) {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="mx-4 mt-4 flex shrink-0 flex-col gap-2 md:hidden"
+        className={`flex shrink-0 flex-col gap-2 md:hidden ${compact ? "" : "mx-2 mt-2"}`}
       >
-        <div className="flex items-center justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117]/95 px-4 py-3 shadow-xl shadow-black/40 backdrop-blur-md">
+        <div className={`flex items-center justify-between overflow-hidden ${compact ? "gap-2" : "rounded-2xl border border-white/10 bg-[#0d1117]/95 px-4 py-3 shadow-xl shadow-black/40 backdrop-blur-md"}`}>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               <span className="font-mono text-xl font-semibold tabular-nums text-emerald-400">
@@ -306,37 +308,45 @@ export function StatsPanel({ onOpenMessage }: Props) {
           <div className="flex gap-1">
             <motion.button
               whileTap={{ scale: 0.95 }}
-              onClick={handleSurpriseMe}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSurpriseMe();
+              }}
               disabled={!stats || stats.total === 0}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-500/70 text-emerald-400 disabled:opacity-40"
+              className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-emerald-500/70 text-emerald-400 active:scale-95 disabled:opacity-40"
             >
-              <Shuffle className="h-4 w-4" strokeWidth={2} />
+              <Shuffle className="h-5 w-5" strokeWidth={2} />
             </motion.button>
             {trending && (
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                onClick={() => onOpenMessage?.(trending.message)}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-500/70 text-emerald-400"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenMessage?.(trending.message);
+                }}
+                className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-emerald-500/70 text-emerald-400 active:scale-95"
               >
-                <Zap className="h-4 w-4" strokeWidth={2} />
+                <Zap className="h-5 w-5" strokeWidth={2} />
               </motion.button>
             )}
           </div>
         </div>
-        <a
-          href="http://paystack.shop/pay/supportvoiceglobe"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-2 block rounded-xl border border-white/10 bg-[#0d1117]/95 px-4 py-2.5 text-center transition hover:border-emerald-500/30 hover:bg-emerald-500/5"
-        >
-          <p className="text-[9px] text-slate-500">
-            Solo project — donate to help with server costs
-          </p>
-          <span className="mt-0.5 inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400">
-            <Heart className="h-2.5 w-2.5" strokeWidth={2} />
-            Support
-          </span>
-        </a>
+        {!compact && (
+          <a
+            href="http://paystack.shop/pay/supportvoiceglobe"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 block rounded-xl border border-white/10 bg-[#0d1117]/95 px-4 py-2.5 text-center transition hover:border-emerald-500/30 hover:bg-[#0d1117]"
+          >
+            <p className="text-[9px] text-slate-500">
+              Solo project — donate to help with server costs
+            </p>
+            <span className="mt-0.5 inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400">
+              <Heart className="h-2.5 w-2.5" strokeWidth={2} />
+              Support
+            </span>
+          </a>
+        )}
       </motion.div>
     </>
   );
