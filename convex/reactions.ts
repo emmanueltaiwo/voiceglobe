@@ -1,5 +1,6 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
+import type { Doc, Id } from './_generated/dataModel';
 
 const EMOJIS = [
   'heart',
@@ -85,5 +86,38 @@ export const setReaction = mutation({
       });
     }
     return { removed: false };
+  },
+});
+
+export const getTrendingByReactions = query({
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 10;
+    const now = Date.now();
+
+    const allReactions = await ctx.db.query('reactions').collect();
+    const countByMessage = new Map<Id<'messages'>, number>();
+
+    for (const r of allReactions) {
+      countByMessage.set(
+        r.messageId,
+        (countByMessage.get(r.messageId) ?? 0) + 1,
+      );
+    }
+
+    const sorted = [...countByMessage.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit * 2);
+
+    const results: { message: Doc<'messages'>; reactionCount: number }[] = [];
+    for (const [messageId, count] of sorted) {
+      if (results.length >= limit) break;
+      const msg = await ctx.db.get(messageId);
+      if (msg && msg.expiresAt > now && !msg.replyTo) {
+        results.push({ message: msg, reactionCount: count });
+      }
+    }
+
+    return results;
   },
 });

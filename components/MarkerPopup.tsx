@@ -92,16 +92,24 @@ export function MarkerPopup({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 40, scale: 0.95 }}
       transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-      className='absolute z-50 w-full max-w-sm rounded-xl border border-white/20 bg-[#0d1117]/98 shadow-2xl shadow-black/40 backdrop-blur-md md:w-80'
-      style={style}
+      className='absolute z-50 flex w-full max-w-sm flex-col overflow-hidden rounded-xl border border-white/20 bg-[#0d1117]/98 shadow-2xl shadow-black/40 backdrop-blur-md md:w-80'
+      style={{
+        ...style,
+        ...((replies?.length ?? 0) > 0
+          ? {
+              height: isDesktop ? 'min(420px, 72dvh)' : 'min(360px, 68dvh)',
+              maxHeight: isDesktop ? 'min(420px, 72dvh)' : 'min(360px, 68dvh)',
+            }
+          : {}),
+      }}
     >
       <motion.div
         initial={{ width: 0 }}
         animate={{ width: '100%' }}
         transition={{ duration: 0.4 }}
-        className='h-0.5 bg-emerald-500'
+        className='h-0.5 shrink-0 bg-emerald-500'
       />
-      <div className='flex items-start justify-between gap-3 border-b border-white/10 p-4'>
+      <div className='flex shrink-0 items-start justify-between gap-3 border-b border-white/10 p-4'>
         <div className='flex min-w-0 flex-1 gap-4'>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -149,11 +157,11 @@ export function MarkerPopup({
           <X className='h-4 w-4 md:h-3.5 md:w-3.5' strokeWidth={2} />
         </motion.button>
       </div>
-      <div className='border-t border-white/10 px-4 py-2'>
+      <div className='shrink-0 border-t border-white/10 px-4 py-2'>
         <ReactionBar messageId={message._id} clientId={clientId} />
       </div>
       {playError && (
-        <p className='border-t border-white/10 px-4 py-2 text-[10px] text-amber-400'>
+        <p className='shrink-0 border-t border-white/10 px-4 py-2 text-[10px] text-amber-400'>
           Unable to play this recording.
         </p>
       )}
@@ -166,7 +174,7 @@ export function MarkerPopup({
         playsInline
       />
       {(replies?.length ?? 0) > 0 && (
-        <div className='border-t border-white/10 p-3'>
+        <div className='min-h-0 flex-1 overflow-y-auto overflow-x-hidden border-t border-white/10 p-3'>
           <p className='mb-2 text-[9px] font-mono uppercase tracking-widest text-text-dim'>
             Replies ({replies?.length})
           </p>
@@ -192,7 +200,7 @@ export function MarkerPopup({
         </div>
       )}
       {onReply && (
-        <div className='border-t border-white/10 p-3'>
+        <div className='shrink-0 border-t border-white/10 p-3'>
           <motion.button
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
