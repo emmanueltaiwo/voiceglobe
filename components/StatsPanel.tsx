@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Shuffle,
@@ -18,6 +18,7 @@ import {
   getRandomMessage,
   getTrendingToday,
 } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 
 function formatTimeAgo(ms: number): string {
   const sec = Math.floor((Date.now() - ms) / 1000);
@@ -32,19 +33,28 @@ type Props = {
 };
 
 export function StatsPanel({ onOpenMessage }: Props) {
-  const { data: stats } = useSWR("stats", getStats);
-  const { data: recentActivity } = useSWR("recent", () =>
-    getRecentActivity(100),
-  );
+  const { data: stats } = useQuery({
+    queryKey: queryKeys.stats,
+    queryFn: getStats,
+  });
+  const { data: recentActivity } = useQuery({
+    queryKey: queryKeys.recent,
+    queryFn: () => getRecentActivity(100),
+    refetchInterval: 5000,
+  });
   const [randomSeed, setRandomSeed] = useState(0);
   const [hasRequestedRandom, setHasRequestedRandom] = useState(false);
   const [expanded, setExpanded] = useState(true);
   const [activityExpanded, setActivityExpanded] = useState(true);
-  const { data: randomMessage } = useSWR(
-    randomSeed > 0 ? ["random", randomSeed] : null,
-    () => getRandomMessage(randomSeed),
-  );
-  const { data: trending } = useSWR("trending-today", getTrendingToday);
+  const { data: randomMessage } = useQuery({
+    queryKey: queryKeys.random(randomSeed),
+    queryFn: () => getRandomMessage(randomSeed),
+    enabled: randomSeed > 0,
+  });
+  const { data: trending } = useQuery({
+    queryKey: queryKeys.trendingToday,
+    queryFn: getTrendingToday,
+  });
 
   useEffect(() => {
     if (hasRequestedRandom && randomMessage) {

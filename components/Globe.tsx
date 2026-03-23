@@ -2,18 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { Locate, Loader2, Shuffle, X } from "lucide-react";
 import { formatDuration, formatTimestamp } from "@/lib/utils";
 import type { Message } from "@/lib/types";
 import { createMicIconDataUrl } from "@/lib/mic-icon";
 import { MarkerPopup } from "@/components/MarkerPopup";
 import { getMessagesInBounds } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 
 const MAPBOX_TOKEN =
   typeof process !== "undefined"
     ? (process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ??
-      process.env.NEXT_PUBLIC_MAPBOX_TOKEN)
+        process.env.NEXT_PUBLIC_MAPBOX_TOKEN)
     : undefined;
 
 type Bounds = {
@@ -97,18 +98,17 @@ export function Globe({
   const boundsKey = bounds
     ? `${bounds.minLat},${bounds.maxLat},${bounds.minLng},${bounds.maxLng}`
     : null;
-  const { data: messages } = useSWR(
-    boundsKey ? ["messages", boundsKey] : null,
-    () =>
-      bounds
-        ? getMessagesInBounds({
-            minLat: bounds.minLat,
-            maxLat: bounds.maxLat,
-            minLng: bounds.minLng,
-            maxLng: bounds.maxLng,
-          })
-        : [],
-  );
+  const { data: messages } = useQuery({
+    queryKey: queryKeys.messages(boundsKey ?? ""),
+    queryFn: () =>
+      getMessagesInBounds({
+        minLat: bounds!.minLat,
+        maxLat: bounds!.maxLat,
+        minLng: bounds!.minLng,
+        maxLng: bounds!.maxLng,
+      }),
+    enabled: !!boundsKey && !!bounds,
+  });
   messagesRef.current = messages;
 
   const messageIdsKey = (messages ?? [])
@@ -394,12 +394,12 @@ export function Globe({
             map.setPaintProperty(
               "user-location-pulse-outer",
               "circle-radius",
-              radius,
+              radius
             );
             map.setPaintProperty(
               "user-location-pulse-outer",
               "circle-opacity",
-              opacity,
+              opacity
             );
           }
         }, 50);
@@ -420,7 +420,7 @@ export function Globe({
         }
         setIsLocating(false);
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   }, []);
 
@@ -550,8 +550,7 @@ export function Globe({
                         address bar
                       </li>
                       <li>
-                        Find &quot;Location&quot; and set it to
-                        &quot;Allow&quot;
+                        Find &quot;Location&quot; and set it to &quot;Allow&quot;
                       </li>
                       <li>Refresh the page and try again</li>
                     </ol>

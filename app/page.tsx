@@ -11,7 +11,8 @@ import { LocationSearch } from "@/components/LocationSearch";
 import { TrendingStrip } from "@/components/TrendingStrip";
 import { AppLoader } from "@/components/AppLoader";
 import { useRecording } from "@/hooks/useRecording";
-import { uploadAudio, createMessage } from "@/lib/api";
+import { uploadAudio } from "@/lib/api";
+import { useCreateMessage } from "@/lib/useMutations";
 import type { Message } from "@/lib/types";
 
 const IS_DOWN = false;
@@ -60,6 +61,7 @@ export default function Home() {
   } | null>(null);
 
   const recording = useRecording();
+  const createMessage = useCreateMessage();
 
   const handleRecordClick = useCallback(() => {
     recording.reset();
@@ -94,7 +96,7 @@ export default function Home() {
       setIsPlacing(true);
       try {
         const { audioUrl } = await uploadAudio(recording.audioBlob);
-        await createMessage({
+        await createMessage.mutateAsync({
           lat,
           lng,
           audioUrl,
@@ -110,7 +112,7 @@ export default function Home() {
         setIsPlacing(false);
       }
     },
-    [recording.audioBlob, recording.duration, replyTo, recording],
+    [recording.audioBlob, recording.duration, replyTo, recording, createMessage],
   );
 
   const handleReplyClick = useCallback(

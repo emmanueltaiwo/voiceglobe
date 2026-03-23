@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import { QueryProvider } from "./QueryProvider";
 
 const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
@@ -52,8 +53,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${plexMono.variable} ${spaceGrotesk.variable}`}>
       <body className="antialiased font-mono">
-        {children}
-        <Analytics />
+        <QueryProvider>
+          {children}
+          <Analytics />
+        </QueryProvider>
       </body>
     </html>
   );

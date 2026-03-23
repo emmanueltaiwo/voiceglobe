@@ -1,11 +1,15 @@
 "use client";
 
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "motion/react";
 import { getStats } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 
 export function AppLoader({ children }: { children: React.ReactNode }) {
-  const { data: stats } = useSWR("stats", getStats);
+  const { data: stats } = useQuery({
+    queryKey: queryKeys.stats,
+    queryFn: getStats,
+  });
   const isReady = stats !== undefined;
 
   return (

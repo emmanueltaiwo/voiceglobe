@@ -2,7 +2,7 @@
 
 import { useRef, useState, useMemo } from "react";
 import { motion } from "motion/react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useClientId } from "@/hooks/useClientId";
 import { getReplies } from "@/lib/api";
@@ -10,6 +10,7 @@ import { Play, Square, MessageCircle, MapPin, X, Award } from "lucide-react";
 import type { Message } from "@/lib/types";
 import { getCountryFromCoords } from "@/lib/geo";
 import { ReactionBar } from "@/components/ReactionBar";
+import { queryKeys } from "@/lib/queryKeys";
 
 type Props = {
   message: Message;
@@ -33,12 +34,13 @@ export function MarkerPopup({
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [playError, setPlayError] = useState(false);
-  const { data: replies } = useSWR(["replies", message._id], () =>
-    getReplies(message._id),
-  );
+  const { data: replies } = useQuery({
+    queryKey: queryKeys.replies(message._id),
+    queryFn: () => getReplies(message._id),
+  });
   const country = useMemo(
     () => getCountryFromCoords(message.lat, message.lng),
-    [message.lat, message.lng],
+    [message.lat, message.lng]
   );
   const clientId = useClientId();
 
@@ -68,25 +70,24 @@ export function MarkerPopup({
 
   const POPUP_WIDTH = 320;
 
-  // Mobile: bottom sheet. Desktop: positioned near marker or top-right
   const style =
     isDesktop && position
       ? position.placement === "left"
         ? {
             left: Math.max(8, position.x - POPUP_WIDTH - 12),
             top: position.y,
-            right: "auto",
-            bottom: "auto",
+            right: "auto" as const,
+            bottom: "auto" as const,
           }
         : {
             left: position.x + 12,
             top: position.y,
-            right: "auto",
-            bottom: "auto",
+            right: "auto" as const,
+            bottom: "auto" as const,
           }
       : isDesktop
-        ? { right: 16, top: 96, left: "auto", bottom: "auto" }
-        : { left: 0, right: 0, bottom: 0, top: "auto" };
+        ? { right: 16, top: 96, left: "auto" as const, bottom: "auto" as const }
+        : { left: 0, right: 0, bottom: 0, top: "auto" as const };
 
   return (
     <motion.div

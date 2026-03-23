@@ -1,8 +1,10 @@
 "use client";
 
 import { motion } from "motion/react";
-import useSWR from "swr";
-import { getReactions, setReaction } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+import { getReactions } from "@/lib/api";
+import { useSetReaction } from "@/lib/useMutations";
+import { queryKeys } from "@/lib/queryKeys";
 
 const REACTIONS = [
   { emoji: "heart", label: "❤️" },
@@ -44,16 +46,17 @@ const DEFAULT_COUNTS: Record<Emoji, number> & { myReaction: Emoji | null } = {
 };
 
 export function ReactionBar({ messageId, clientId, compact }: Props) {
-  const { data: reactions, mutate } = useSWR(
-    clientId ? ["reactions", messageId, clientId] : null,
-    () => (clientId ? getReactions(messageId, clientId) : null),
-  );
+  const { data: reactions } = useQuery({
+    queryKey: queryKeys.reactions(messageId, clientId ?? ""),
+    queryFn: () => getReactions(messageId, clientId!),
+    enabled: !!clientId,
+  });
+  const setReaction = useSetReaction();
 
   if (!clientId) return null;
 
-  const handleClick = async (emoji: Emoji) => {
-    await setReaction({ messageId, emoji, clientId });
-    mutate();
+  const handleClick = (emoji: Emoji) => {
+    setReaction.mutate({ messageId, emoji, clientId });
   };
 
   const counts = reactions ?? DEFAULT_COUNTS;
@@ -71,13 +74,14 @@ export function ReactionBar({ messageId, clientId, compact }: Props) {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => handleClick(emoji)}
+            disabled={setReaction.isPending}
             className={`flex items-center gap-1 rounded-full px-2 py-1 transition ${
               compact ? "px-1.5 py-0.5" : ""
             } ${
               isMine
                 ? "bg-emerald-500/20 ring-1 ring-emerald-500/50"
                 : "hover:bg-white/10"
-            }`}
+            } disabled:opacity-70`}
             title={`${count} ${emoji}`}
           >
             <span className={compact ? "text-sm" : "text-base"}>{label}</span>

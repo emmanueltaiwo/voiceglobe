@@ -1,19 +1,21 @@
 "use client";
 
 import { motion } from "motion/react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { flag, name } from "country-emoji";
 import type { Message } from "@/lib/types";
 import { getTrendingByReactions } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 
 type Props = {
   onOpenMessage?: (message: Message) => void;
 };
 
 export function TrendingStrip({ onOpenMessage }: Props) {
-  const { data: trending } = useSWR("trending-reactions", () =>
-    getTrendingByReactions(10),
-  );
+  const { data: trending } = useQuery({
+    queryKey: queryKeys.trendingReactions,
+    queryFn: () => getTrendingByReactions(10),
+  });
 
   if (!trending || trending.length === 0) return null;
 
@@ -47,7 +49,7 @@ export function TrendingStrip({ onOpenMessage }: Props) {
               </span>
               <span className="max-w-[80px] truncate text-xs text-slate-300 md:max-w-[100px] md:text-sm">
                 {item.message.countryCode
-                  ? (name(item.message.countryCode) ?? "—")
+                  ? name(item.message.countryCode) ?? "—"
                   : "—"}
               </span>
               <span className="flex items-center gap-1 font-mono text-[10px] text-amber-400/90 md:text-xs">
