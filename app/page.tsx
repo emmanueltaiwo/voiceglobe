@@ -3,7 +3,8 @@
 import { Suspense, useState, useCallback, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mic, ChevronDown, Heart } from 'lucide-react';
+import Link from 'next/link';
+import { Mic, ChevronDown, Heart, Radio } from 'lucide-react';
 import { Globe } from '@/components/Globe';
 import { RecordModal } from '@/components/RecordModal';
 import { PlaceLoadingOverlay } from '@/components/PlaceLoadingOverlay';
@@ -73,6 +74,26 @@ function MobileShell({
                   setExpanded(false);
                 }}
               />
+              <Link
+                href='/radio'
+                onClick={() => setExpanded(false)}
+                className='flex min-h-[48px] items-center gap-3 rounded-xl border border-amber-500/35 bg-gradient-to-br from-amber-500/[0.12] to-transparent px-4 py-3 transition active:scale-[0.99] hover:border-amber-400/45 hover:from-amber-500/20'
+              >
+                <span className='flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10'>
+                  <Radio
+                    className='h-5 w-5 text-amber-400'
+                    strokeWidth={2}
+                  />
+                </span>
+                <span className='min-w-0 text-left'>
+                  <span className='block text-sm font-semibold text-amber-400'>
+                    Voice radio
+                  </span>
+                  <span className='mt-0.5 block text-[11px] text-slate-500'>
+                    Stream every message, your session
+                  </span>
+                </span>
+              </Link>
             </div>
             <a
               href='http://paystack.shop/pay/supportvoiceglobe'
@@ -251,6 +272,13 @@ function HomeContent() {
                 }
               />
               <MessageIdSearch onOpenOnMap={setMessageToOpen} />
+              <Link
+                href='/radio'
+                className='flex items-center justify-center gap-2 rounded-xl border border-amber-500/35 bg-amber-500/[0.08] px-3 py-2.5 text-xs font-medium text-amber-400 transition hover:border-amber-400/50 hover:bg-amber-500/15'
+              >
+                <Radio className='h-3.5 w-3.5 shrink-0' strokeWidth={2} />
+                Open voice radio
+              </Link>
             </div>
           </div>
         </div>

@@ -7,4 +7,6 @@ export const queryKeys = {
   random: (seed: number) => ["random", seed] as const,
   trendingToday: ["trending-today"] as const,
   trendingReactions: ["trending-reactions"] as const,
+  radioQueuePreview: (afterMessageId: string) =>
+    ["radio", "queue-preview", afterMessageId] as const,
 };

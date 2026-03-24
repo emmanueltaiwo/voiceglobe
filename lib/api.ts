@@ -16,6 +16,78 @@ export function getWsRecentUrl(limit?: number): string {
   return u.toString();
 }
 
+/** WebSocket URL for optional radio new-message push */
+export function getWsRadioUrl(): string {
+  const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+  const u = new URL(base);
+  u.protocol = u.protocol === "https:" ? "wss:" : "ws:";
+  u.pathname = "/ws/radio";
+  u.search = "";
+  u.hash = "";
+  return u.toString();
+}
+
+export async function getRadioMessages(params?: {
+  limit?: number;
+  cursor?: string;
+}): Promise<{ messages: Message[]; nextCursor: string | null }> {
+  const q = new URLSearchParams();
+  if (params?.limit != null) q.set("limit", String(params.limit));
+  if (params?.cursor) q.set("cursor", params.cursor);
+  const res = await fetch(`${API}/api/radio/messages?${q}`);
+  if (res.status === 400) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(
+      typeof err.error === "string" ? err.error : "Invalid cursor",
+    );
+  }
+  if (!res.ok) throw new Error("Failed to fetch radio messages");
+  return res.json();
+}
+
+export async function getRadioMessagesSince(params: {
+  afterCreatedAt: number;
+  afterId: string;
+  limit?: number;
+}): Promise<{ messages: Message[] }> {
+  const q = new URLSearchParams({
+    afterCreatedAt: String(params.afterCreatedAt),
+    afterId: params.afterId,
+  });
+  if (params.limit != null) q.set("limit", String(params.limit));
+  const res = await fetch(`${API}/api/radio/messages/since?${q}`);
+  if (res.status === 400) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(
+      typeof err.error === "string" ? err.error : "Invalid params",
+    );
+  }
+  if (!res.ok) throw new Error("Failed to fetch new radio messages");
+  return res.json();
+}
+
+export async function getRadioQueuePreview(
+  afterMessageId: string,
+  count = 5,
+): Promise<{ messages: Message[] }> {
+  const q = new URLSearchParams({
+    afterMessageId,
+    count: String(count),
+  });
+  const res = await fetch(`${API}/api/radio/queue-preview?${q}`);
+  if (res.status === 404) {
+    return { messages: [] };
+  }
+  if (res.status === 400) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(
+      typeof err.error === "string" ? err.error : "Invalid params",
+    );
+  }
+  if (!res.ok) throw new Error("Failed to fetch queue preview");
+  return res.json();
+}
+
 export async function uploadAudio(blob: Blob): Promise<{ audioUrl: string }> {
   const formData = new FormData();
   formData.append("audio", blob);
