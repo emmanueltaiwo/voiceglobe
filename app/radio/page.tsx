@@ -139,9 +139,15 @@ function WaveformBars({ active }: { active: boolean }) {
   );
 }
 
+const MAX_CONSECUTIVE_AUTO_SKIPS = 30;
+
 export default function RadioPage() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const wantPlayRef = useRef(false);
+  const autoSkipLockRef = useRef(false);
+  const consecutiveFailSkipsRef = useRef(0);
+  /** Ignore stale play() settle after track/skip changed */
+  const playbackGenRef = useRef(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playError, setPlayError] = useState(false);
 
@@ -179,26 +185,58 @@ export default function RadioPage() {
     return c ? `${c.flag} ${c.name}` : 'Unknown';
   });
 
+  const handlePlayFailure = useCallback(async () => {
+    if (autoSkipLockRef.current) return;
+    autoSkipLockRef.current = true;
+    try {
+      consecutiveFailSkipsRef.current += 1;
+      if (consecutiveFailSkipsRef.current > MAX_CONSECUTIVE_AUTO_SKIPS) {
+        setPlayError(true);
+        wantPlayRef.current = false;
+        setIsPlaying(false);
+        consecutiveFailSkipsRef.current = 0;
+        return;
+      }
+      setPlayError(false);
+      setIsPlaying(false);
+      const keepAutoplay = wantPlayRef.current;
+      const ok = await goToNext();
+      if (!ok) {
+        wantPlayRef.current = false;
+        consecutiveFailSkipsRef.current = 0;
+      } else if (keepAutoplay) {
+        wantPlayRef.current = true;
+      }
+    } finally {
+      autoSkipLockRef.current = false;
+    }
+  }, [goToNext]);
+
   const syncPlayback = useCallback(() => {
     const a = audioRef.current;
     if (!current || !a) return;
     a.pause();
     setPlayError(false);
+    playbackGenRef.current += 1;
+    const gen = playbackGenRef.current;
     a.src = current.audioUrl;
     a.load();
     if (wantPlayRef.current) {
       const p = a.play();
       if (p !== undefined) {
-        p.then(() => setIsPlaying(true)).catch(() => {
-          setIsPlaying(false);
-          setPlayError(true);
-          wantPlayRef.current = false;
+        p.then(() => {
+          if (playbackGenRef.current !== gen) return;
+          consecutiveFailSkipsRef.current = 0;
+          setIsPlaying(true);
+        }).catch(() => {
+          if (playbackGenRef.current !== gen) return;
+          void handlePlayFailure();
         });
       }
     } else {
       setIsPlaying(false);
     }
-  }, [current]);
+  }, [current, handlePlayFailure]);
 
   useEffect(() => {
     syncPlayback();
@@ -218,11 +256,17 @@ export default function RadioPage() {
       setIsPlaying(false);
     } else {
       wantPlayRef.current = true;
+      playbackGenRef.current += 1;
+      const gen = playbackGenRef.current;
       const p = a.play();
       if (p !== undefined) {
-        p.then(() => setIsPlaying(true)).catch(() => {
-          setPlayError(true);
-          wantPlayRef.current = false;
+        p.then(() => {
+          if (playbackGenRef.current !== gen) return;
+          consecutiveFailSkipsRef.current = 0;
+          setIsPlaying(true);
+        }).catch(() => {
+          if (playbackGenRef.current !== gen) return;
+          void handlePlayFailure();
         });
       } else {
         setIsPlaying(true);
@@ -469,7 +513,8 @@ export default function RadioPage() {
 
             {playError && (
               <p className='mt-4 font-mono text-xs text-amber-500/80'>
-                ⚠ Could not play this clip — skipping might help.
+                ⚠ Too many clips failed in a row. Try again or check your
+                connection.
               </p>
             )}
 
@@ -523,7 +568,9 @@ export default function RadioPage() {
       <audio
         ref={audioRef}
         onEnded={handleEnded}
-        onError={() => setPlayError(true)}
+        onError={() => {
+          void handlePlayFailure();
+        }}
         preload='auto'
         playsInline
       />
