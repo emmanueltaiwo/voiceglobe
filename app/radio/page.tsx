@@ -199,13 +199,12 @@ export default function RadioPage() {
       }
       setPlayError(false);
       setIsPlaying(false);
-      const keepAutoplay = wantPlayRef.current;
+      // Keep the station rolling: next clip should play and chain continues
+      wantPlayRef.current = true;
       const ok = await goToNext();
       if (!ok) {
         wantPlayRef.current = false;
         consecutiveFailSkipsRef.current = 0;
-      } else if (keepAutoplay) {
-        wantPlayRef.current = true;
       }
     } finally {
       autoSkipLockRef.current = false;
