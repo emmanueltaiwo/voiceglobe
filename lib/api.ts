@@ -88,15 +88,57 @@ export async function getRadioQueuePreview(
   return res.json();
 }
 
-export async function uploadAudio(blob: Blob): Promise<{ audioUrl: string }> {
-  const formData = new FormData();
-  formData.append("audio", blob);
-  const res = await fetch(`${API}/api/upload`, {
+type UploadSignature = {
+  cloudName: string;
+  apiKey: string;
+  timestamp: number;
+  signature: string;
+  folder: string;
+  resourceType: string;
+  allowedFormats: string;
+};
+
+export async function uploadAudio(blob: Blob): Promise<string> {
+  const signRes = await fetch(`${API}/api/upload/signature`, {
     method: "POST",
-    body: formData,
   });
-  if (!res.ok) throw new Error("Upload failed");
-  return res.json();
+  if (!signRes.ok) throw new Error("Could not start upload. Please try again");
+  const sig = (await signRes.json()) as UploadSignature;
+  if (
+    !sig.cloudName ||
+    !sig.apiKey ||
+    !sig.signature ||
+    !sig.timestamp ||
+    !sig.folder ||
+    !sig.resourceType ||
+    !sig.allowedFormats
+  )
+    throw new Error("Upload is not configured. Please try again later");
+
+  const formData = new FormData();
+  formData.append(
+    "file",
+    blob,
+    blob.type.includes("mp4") ? "voice-note.mp4" : "voice-note.webm",
+  );
+  formData.append("api_key", sig.apiKey);
+  formData.append("timestamp", String(sig.timestamp));
+  formData.append("signature", sig.signature);
+  formData.append("folder", sig.folder);
+  formData.append("allowed_formats", sig.allowedFormats);
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${sig.cloudName}/${sig.resourceType}/upload`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
+  const data = await res.json().catch(() => null);
+  if (data?.error?.message)
+    throw new Error(`Upload failed: ${data.error.message}`);
+  if (!res.ok || !data || typeof data.secure_url !== "string")
+    throw new Error("Upload failed. Please try again");
+  return data.secure_url;
 }
 
 export async function createMessage(params: {
@@ -201,6 +243,26 @@ export async function setReaction(params: {
     body: JSON.stringify(params),
   });
   if (!res.ok) throw new Error("Failed to set reaction");
+  return res.json();
+}
+
+export async function reportMessage(
+  messageId: string,
+  reason?: string,
+): Promise<{ ok: boolean; duplicate: boolean; hidden: boolean }> {
+  const res = await fetch(`${API}/api/reports`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(reason ? { messageId, reason } : { messageId }),
+  });
+  if (res.status === 404) throw new Error("Message not found");
+  if (res.status === 429) throw new Error("Too many reports, slow down");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(
+      typeof err.error === "string" ? err.error : "Failed to report message",
+    );
+  }
   return res.json();
 }
 

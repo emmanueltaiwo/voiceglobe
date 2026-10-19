@@ -589,6 +589,7 @@ export function Globe({
       <AnimatePresence>
         {popupMessage && (
           <MarkerPopup
+            key={popupMessage._id}
             message={popupMessage}
             position={popupPosition}
             onClose={handlePopupClose}
