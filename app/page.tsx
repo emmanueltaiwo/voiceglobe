@@ -210,7 +210,7 @@ function HomeContent() {
 
       setIsPlacing(true);
       try {
-        const { audioUrl } = await uploadAudio(recording.audioBlob);
+        const audioUrl = await uploadAudio(recording.audioBlob);
         await createMessage.mutateAsync({
           lat,
           lng,

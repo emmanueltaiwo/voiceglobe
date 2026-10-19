@@ -2,10 +2,10 @@
 
 import { useRef, useState, useMemo } from "react";
 import { motion } from "motion/react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useClientId } from "@/hooks/useClientId";
-import { getReplies } from "@/lib/api";
+import { getReplies, reportMessage } from "@/lib/api";
 import {
   Play,
   Square,
@@ -15,6 +15,7 @@ import {
   Award,
   Copy,
   Check,
+  Flag,
 } from "lucide-react";
 import type { Message } from "@/lib/types";
 import { getCountryFromCoords } from "@/lib/geo";
@@ -44,6 +45,11 @@ export function MarkerPopup({
   const [playing, setPlaying] = useState(false);
   const [playError, setPlayError] = useState(false);
   const [copied, setCopied] = useState<"view" | "map" | "id" | null>(null);
+  const [reported, setReported] = useState(false);
+  const [reporting, setReporting] = useState(false);
+  const [reportNote, setReportNote] = useState<string | null>(null);
+  const [reportNoteIsError, setReportNoteIsError] = useState(false);
+  const queryClient = useQueryClient();
 
   const copyLink = (type: "view" | "map") => {
     if (typeof window === "undefined") return;
@@ -64,6 +70,31 @@ export function MarkerPopup({
       setCopied("id");
       setTimeout(() => setCopied(null), 2000);
     });
+  };
+
+  const handleReport = () => {
+    if (reported || reporting) return;
+    setReportNote(null);
+    setReportNoteIsError(false);
+    setReporting(true);
+    reportMessage(message._id)
+      .then((res) => {
+        setReported(true);
+        setReportNote(res.hidden ? "Removed after multiple reports" : null);
+        // Refresh message queries so the removed message stops being selectable.
+        if (res.hidden) {
+          void queryClient.invalidateQueries({ queryKey: ["messages"] });
+        }
+      })
+      .catch((err) => {
+        setReportNoteIsError(true);
+        setReportNote(
+          err instanceof Error ? err.message : "Failed to report message",
+        );
+      })
+      .finally(() => {
+        setReporting(false);
+      });
   };
 
   const { data: replies } = useQuery({
@@ -220,7 +251,24 @@ export function MarkerPopup({
           {copied === "id" ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
           ID
         </button>
+        <button
+          onClick={handleReport}
+          disabled={reported || reporting}
+          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-white/20 px-3 py-2 text-[10px] font-mono uppercase tracking-wider text-slate-400 transition hover:border-amber-500/50 hover:bg-white/5 hover:text-amber-400 disabled:cursor-default disabled:hover:border-white/20 disabled:hover:bg-transparent disabled:hover:text-slate-400 md:min-h-0 md:px-2.5 md:py-1.5"
+        >
+          {reported ? <Check className="h-3 w-3" /> : <Flag className="h-3 w-3" />}
+          {reported ? "Reported" : "Report"}
+        </button>
       </div>
+      {reportNote && (
+        <p
+          className={`shrink-0 border-t border-white/10 px-4 py-2 text-[10px] ${
+            reportNoteIsError ? "text-tx-active" : "text-amber-400"
+          }`}
+        >
+          {reportNote}
+        </p>
+      )}
       {playError && (
         <p className="shrink-0 border-t border-white/10 px-4 py-2 text-[10px] text-amber-400">
           Unable to play this recording.
